@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Rewa — Login</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#050c18] text-white min-h-screen flex items-center justify-center px-4">
+<div class="w-full max-w-sm">
+  <div class="text-center mb-8">
+    <div class="w-14 h-14 rounded-2xl bg-[#10b981] flex items-center justify-center font-black text-black text-2xl mx-auto mb-4">R</div>
+    <h1 class="font-black text-2xl mb-1">Rewa Sandbox</h1>
+    <p class="text-gray-500 text-sm">Enter your PIN to access the dashboard</p>
+  </div>
+  <div class="bg-white/3 border border-white/8 rounded-2xl p-6">
+    <div id="err" class="hidden bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl px-4 py-3 mb-4">
+      Wrong PIN. Try again.
+    </div>
+    <div class="flex justify-center gap-3 mb-6" id="pin-dots">
+      <div class="w-4 h-4 rounded-full border-2 border-gray-600 dot"></div>
+      <div class="w-4 h-4 rounded-full border-2 border-gray-600 dot"></div>
+      <div class="w-4 h-4 rounded-full border-2 border-gray-600 dot"></div>
+      <div class="w-4 h-4 rounded-full border-2 border-gray-600 dot"></div>
+    </div>
+    <input type="password" id="pin" maxlength="4" placeholder="• • • •"
+      class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-center text-2xl tracking-widest outline-none focus:border-[#10b981]/50 transition-colors mb-4"
+      autocomplete="off" inputmode="numeric"/>
+    <button onclick="doLogin()" class="w-full bg-[#10b981] hover:bg-[#34d399] text-black font-bold py-3 rounded-xl transition-all" id="btn">
+      Enter
+    </button>
+  </div>
+  <p class="text-center text-xs text-gray-700 mt-4"><a href="/" class="hover:text-gray-500 transition-colors">← Back to site</a></p>
+</div>
+<script>
+const pin = document.getElementById('pin');
+const dots = document.querySelectorAll('.dot');
+pin.addEventListener('input', () => {
+  const v = pin.value;
+  dots.forEach((d, i) => {
+    d.classList.toggle('bg-[#10b981]', i < v.length);
+    d.classList.toggle('border-[#10b981]', i < v.length);
+    d.classList.toggle('border-gray-600', i >= v.length);
+  });
+  if (v.length === 4) doLogin();
+});
+pin.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+async function doLogin() {
+  const p = pin.value;
+  if (p.length < 4) return;
+  const btn = document.getElementById('btn');
+  btn.textContent = '...';
+  btn.disabled = true;
+  try {
+    const r = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin: p })
+    });
+    if (r.ok) {
+      window.location.href = '/dashboard';
+    } else {
+      document.getElementById('err').classList.remove('hidden');
+      pin.value = '';
+      dots.forEach(d => { d.classList.remove('bg-[#10b981]', 'border-[#10b981]'); d.classList.add('border-gray-600'); });
+      btn.textContent = 'Enter';
+      btn.disabled = false;
+      pin.focus();
+    }
+  } catch {
+    btn.textContent = 'Enter';
+    btn.disabled = false;
+  }
+}
+window.onload = () => pin.focus();
+</script>
+</body>
+</html>

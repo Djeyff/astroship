@@ -3,335 +3,161 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Dashboard — Rewa</title>
+<title>Dashboard — Rewa Sandbox</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 *{box-sizing:border-box}
-body{overflow:hidden}
-@media(max-width:768px){body{overflow:auto}}
-.sidebar{background:#070e1c;border-right:1px solid rgba(255,255,255,.06)}
-.nav-item{padding:10px 14px;border-radius:10px;font-size:14px;display:flex;align-items:center;gap:10px;color:#6b7280;transition:all .2s;cursor:pointer}
+.sidebar{background:#070e1c;border-right:1px solid rgba(255,255,255,.06);transition:transform .3s}
+.nav-item{padding:10px 14px;border-radius:10px;font-size:13px;display:flex;align-items:center;gap:9px;color:#6b7280;transition:all .2s;cursor:pointer}
 .nav-item:hover,.nav-item.active{background:rgba(52,211,153,.08);color:#fff}
 .nav-item.active{color:#34d399}
-.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px}
-.glass{background:rgba(255,255,255,.03);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.07);border-radius:12px}
-.prog-bar{height:4px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden}
-.prog-fill{height:100%;background:linear-gradient(90deg,#34d399,#6ee7b7);border-radius:999px}
-.tag-green{background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.2);border-radius:6px;padding:2px 8px;font-size:11px}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:#1a3a2a;border-radius:3px}
+.glass{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:18px}
+.badge-tg{background:rgba(34,211,238,.12);color:#22d3ee;border:1px solid rgba(34,211,238,.2);border-radius:6px;padding:1px 7px;font-size:10px}
+.badge-wa{background:rgba(52,211,153,.12);color:#34d399;border:1px solid rgba(52,211,153,.2);border-radius:6px;padding:1px 7px;font-size:10px}
+.badge-waqr{background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.2);border-radius:6px;padding:1px 7px;font-size:10px}
+.source-dot-tg{background:#22d3ee}
+.source-dot-wa{background:#34d399}
+.source-dot-waqr{background:#a855f7}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#1a3a2a;border-radius:3px}
+@media(max-width:768px){.sidebar-wrap{position:fixed;inset:0;z-index:50;display:none}.sidebar-wrap.open{display:block}.sidebar-wrap.open .sidebar-overlay{display:block}.sidebar{position:absolute;left:0;top:0;bottom:0;width:220px}.sidebar-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,.6)}}
 </style>
 </head>
 <body class="bg-[#050c18] text-white antialiased">
-<div class="flex h-screen">
+<div class="flex h-screen overflow-hidden">
 
-  <!-- Sidebar -->
-  <div class="sidebar hidden md:flex flex-col w-56 flex-shrink-0 py-5 px-3">
-    <a href="/" class="flex items-center gap-2 px-3 mb-8">
+  <!-- Mobile sidebar wrapper -->
+  <div class="sidebar-wrap" id="sidebar-wrap">
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+    <div class="sidebar flex flex-col py-5 px-3 h-full w-52">
+      <div class="flex items-center gap-2 px-3 mb-8">
+        <div class="w-8 h-8 rounded-lg bg-[#10b981] flex items-center justify-center font-bold text-black text-sm">R</div>
+        <span class="font-bold text-sm">Rewa Sandbox</span>
+      </div>
+      <nav class="flex flex-col gap-1 flex-1">
+        <div class="nav-item active" onclick="showSection('transcriptions')">🎤 Transcriptions</div>
+        <div class="nav-item" onclick="showSection('qr')">📱 WhatsApp QR</div>
+        <div class="nav-item" onclick="showSection('stats')">📊 Stats</div>
+        <div class="flex-1"></div>
+        <a href="/logout" class="nav-item text-red-400 hover:text-red-300">🚪 Logout</a>
+      </nav>
+      <div class="mx-1 mt-3 bg-[#34d399]/8 border border-[#34d399]/20 rounded-xl p-3">
+        <p class="text-xs text-[#34d399] font-semibold mb-0.5">Sandbox Mode</p>
+        <p class="text-xs text-gray-500 id="plan-label">Loading...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Desktop sidebar -->
+  <div class="sidebar hidden md:flex flex-col w-52 flex-shrink-0 py-5 px-3">
+    <div class="flex items-center gap-2 px-3 mb-8">
       <div class="w-8 h-8 rounded-lg bg-[#10b981] flex items-center justify-center font-bold text-black text-sm">R</div>
-      <span class="font-bold text-sm">Rewa</span>
-    </a>
+      <span class="font-bold text-sm">Rewa Sandbox</span>
+    </div>
     <nav class="flex flex-col gap-1 flex-1">
-      <div class="nav-item active">📊 Overview</div>
-      <div class="nav-item">👥 Groups</div>
-      <div class="nav-item">🎤 Transcriptions</div>
-      <div class="nav-item">🧠 AI Search</div>
-      <div class="nav-item">📋 Summaries</div>
-      <div class="nav-item">📁 Export</div>
+      <div class="nav-item active" onclick="showSection('transcriptions')">🎤 Transcriptions</div>
+      <div class="nav-item" onclick="showSection('qr')">📱 WhatsApp QR</div>
+      <div class="nav-item" onclick="showSection('stats')">📊 Stats</div>
       <div class="flex-1"></div>
-      <div class="nav-item">⚙️ Settings</div>
-      <div class="nav-item">💳 Billing</div>
+      <a href="/logout" class="nav-item text-red-400 hover:text-red-300">🚪 Logout</a>
     </nav>
-    <div class="mt-4 mx-1 bg-[#34d399]/10 border border-[#34d399]/20 rounded-xl p-3">
-      <p class="text-xs text-[#34d399] font-semibold mb-1">Pro Plan</p>
-      <p class="text-xs text-gray-500">847 / 1,500 voice min</p>
-      <div class="prog-bar mt-2"><div class="prog-fill" style="width:56%"></div></div>
-      <p class="text-xs text-gray-600 mt-1.5">47 / 300 AI queries</p>
-      <div class="prog-bar mt-1"><div class="prog-fill" style="width:16%"></div></div>
+    <div class="mx-1 mt-3 bg-[#34d399]/8 border border-[#34d399]/20 rounded-xl p-3">
+      <p class="text-xs text-[#34d399] font-semibold mb-0.5">Sandbox Mode</p>
+      <p class="text-xs text-gray-500" id="plan-label">Loading...</p>
     </div>
   </div>
 
   <!-- Main -->
   <div class="flex-1 flex flex-col overflow-hidden min-w-0">
 
-    <!-- Top bar -->
-    <div class="flex items-center gap-3 px-4 sm:px-6 py-4 border-b border-white/5 bg-[#050c18] flex-shrink-0">
-      <button onclick="document.querySelector('.sidebar').classList.toggle('hidden');document.querySelector('.sidebar').classList.toggle('flex')" class="md:hidden p-2 rounded-lg glass text-sm">☰</button>
-      <div class="flex-1 flex items-center gap-3 bg-white/5 border border-white/8 rounded-xl px-4 py-2.5 max-w-lg">
+    <!-- Topbar -->
+    <div class="flex items-center gap-3 px-4 py-3.5 border-b border-white/5 bg-[#050c18] flex-shrink-0">
+      <button onclick="document.getElementById('sidebar-wrap').classList.toggle('open')" class="md:hidden p-2 rounded-lg glass text-sm">☰</button>
+      <div class="flex-1 flex items-center gap-2 bg-white/5 border border-white/8 rounded-xl px-3.5 py-2 max-w-md">
         <svg class="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input type="text" id="search-input" placeholder='Ask anything… "what did we decide about the tiles?"'
+        <input type="text" id="search-input" placeholder="Search transcriptions..."
           class="bg-transparent text-sm text-gray-300 placeholder-gray-600 outline-none w-full"
           onkeydown="if(event.key==='Enter')doSearch(this.value)"/>
-        <kbd class="hidden sm:block text-xs text-gray-600 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">Enter</kbd>
       </div>
-      <div class="flex items-center gap-2 ml-auto flex-shrink-0">
-        <div class="hidden sm:block text-right">
-          <p class="text-xs font-semibold">Lord Kaan</p>
-          <p class="text-xs text-gray-500">Pro plan</p>
-        </div>
-        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#34d399] to-indigo-500 flex items-center justify-center text-xs font-bold text-black">LK</div>
-      </div>
+      <button onclick="loadTranscriptions()" class="hidden sm:flex items-center gap-2 glass border border-white/10 px-3 py-2 rounded-xl text-xs hover:border-[#34d399]/30 transition-all">
+        🔄 Refresh
+      </button>
+      <a href="/logout" class="text-xs text-gray-600 hover:text-red-400 transition-colors hidden sm:block">Logout</a>
     </div>
 
-    <!-- AI Search Result -->
-    <div id="ai-result" class="hidden mx-4 sm:mx-6 mt-4 bg-[#34d399]/8 border border-[#34d399]/20 rounded-2xl p-4 flex-shrink-0">
-      <div class="flex items-center gap-2 mb-2">
-        <div class="w-5 h-5 rounded bg-[#10b981] flex items-center justify-center"><span class="text-black text-xs font-bold">R</span></div>
-        <span class="text-[#34d399] text-xs font-semibold">Rewa AI</span>
-        <button onclick="document.getElementById('ai-result').classList.add('hidden')" class="ml-auto text-gray-600 hover:text-gray-400 text-sm">✕</button>
-      </div>
-      <p id="ai-answer" class="text-sm text-gray-300 leading-relaxed"></p>
-      <div id="ai-sources" class="mt-3 flex flex-wrap gap-2"></div>
-    </div>
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto px-4 sm:px-5 py-5">
 
-    <!-- Scrollable content -->
-    <div class="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
-
-      <!-- Page header -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <div>
-          <h1 class="font-black text-xl">Good morning, Lord Kaan 👋</h1>
-          <p class="text-sm text-gray-500 mt-0.5">Thursday, March 13 · 4 groups active · 61 voice notes this week</p>
-        </div>
-        <button class="flex items-center gap-2 text-sm glass border border-white/10 hover:border-[#34d399]/30 px-4 py-2 rounded-xl transition-all self-start sm:self-auto">
-          <span>📊</span> Weekly report
-        </button>
-      </div>
-
-      <!-- Stats -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <div class="card">
-          <p class="text-xs text-gray-500 mb-1">Messages today</p>
-          <p class="text-2xl font-black">284</p>
-          <p class="text-xs text-[#34d399] mt-1">↑ 12% vs yesterday</p>
-        </div>
-        <div class="card">
-          <p class="text-xs text-gray-500 mb-1">Voice notes transcribed</p>
-          <p class="text-2xl font-black">23</p>
-          <p class="text-xs text-[#34d399] mt-1">61 this week</p>
-        </div>
-        <div class="card">
-          <p class="text-xs text-gray-500 mb-1">AI queries this month</p>
-          <p class="text-2xl font-black">47</p>
-          <p class="text-xs text-gray-500 mt-1">253 remaining</p>
-        </div>
-        <div class="card">
-          <p class="text-xs text-gray-500 mb-1">Active groups</p>
-          <p class="text-2xl font-black">4</p>
-          <p class="text-xs text-[#34d399] mt-1">All connected ✓</p>
-        </div>
-      </div>
-
-      <!-- Groups + Activity -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
-        <!-- Groups -->
-        <div class="card">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="font-bold text-sm">Connected Groups</h2>
-            <button class="text-xs text-[#34d399] hover:text-[#6ee7b7] transition-colors">+ Add group</button>
-          </div>
-          <div class="flex flex-col gap-2">
-            <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer">
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-0.5">
-                  <p class="text-sm font-semibold truncate">🏗️ Construction Team</p>
-                  <span class="w-1.5 h-1.5 rounded-full bg-[#34d399] flex-shrink-0"></span>
-                </div>
-                <p class="text-xs text-gray-500">12 members · 847 msgs · 43 voice notes</p>
-              </div>
-              <span class="text-xs text-gray-600">2m ago</span>
-            </div>
-            <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer">
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-0.5">
-                  <p class="text-sm font-semibold truncate">🔧 Maintenance Crew</p>
-                  <span class="w-1.5 h-1.5 rounded-full bg-[#34d399] flex-shrink-0"></span>
-                </div>
-                <p class="text-xs text-gray-500">6 members · 312 msgs · 18 voice notes</p>
-              </div>
-              <span class="text-xs text-gray-600">17m ago</span>
-            </div>
-            <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer">
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold truncate mb-0.5">📦 Suppliers</p>
-                <p class="text-xs text-gray-500">9 members · 156 msgs · 7 voice notes</p>
-              </div>
-              <span class="text-xs text-gray-600">2h ago</span>
-            </div>
-            <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer">
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-0.5">
-                  <p class="text-sm font-semibold truncate">💼 Management</p>
-                  <span class="w-1.5 h-1.5 rounded-full bg-[#34d399] flex-shrink-0"></span>
-                </div>
-                <p class="text-xs text-gray-500">4 members · 94 msgs · 11 voice notes</p>
-              </div>
-              <span class="text-xs text-gray-600">34m ago</span>
+      <!-- SECTION: Transcriptions -->
+      <div id="section-transcriptions">
+        <!-- Stats row -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+          <div class="card"><p class="text-xs text-gray-500 mb-1">Total transcriptions</p><p class="text-2xl font-black" id="stat-total">—</p></div>
+          <div class="card"><p class="text-xs text-gray-500 mb-1">Voice minutes</p><p class="text-2xl font-black" id="stat-mins">—</p></div>
+          <div class="card"><p class="text-xs text-gray-500 mb-1">Today</p><p class="text-2xl font-black" id="stat-today">—</p></div>
+          <div class="card"><p class="text-xs text-gray-500 mb-1">Sources</p>
+            <div class="flex flex-col gap-1 mt-1">
+              <p class="text-xs"><span class="badge-tg">TG</span> <span id="stat-tg">—</span></p>
+              <p class="text-xs"><span class="badge-wa">WA Biz</span> <span id="stat-wa">—</span></p>
+              <p class="text-xs"><span class="badge-waqr">QR</span> <span id="stat-qr">—</span></p>
             </div>
           </div>
         </div>
 
-        <!-- Activity -->
-        <div class="card">
-          <h2 class="font-bold text-sm mb-4">Live Activity</h2>
-          <div class="flex flex-col gap-4">
-            <div class="flex items-start gap-3">
-              <span class="text-base flex-shrink-0">🎤</span>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm text-gray-300">Carlos R. sent a voice note in Construction Team</p>
-                <p class="text-xs text-gray-600 mt-0.5">0:52 — transcribed and saved</p>
-              </div>
-              <span class="text-xs text-gray-600 flex-shrink-0">2m ago</span>
+        <!-- Source filter -->
+        <div class="flex flex-wrap gap-2 mb-4">
+          <button onclick="filterSource('all')" class="filter-btn active text-xs px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 transition-all" data-src="all">All sources</button>
+          <button onclick="filterSource('telegram')" class="filter-btn text-xs px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 transition-all" data-src="telegram">📨 Telegram</button>
+          <button onclick="filterSource('whatsapp_business')" class="filter-btn text-xs px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 transition-all" data-src="whatsapp_business">💬 WhatsApp Business</button>
+          <button onclick="filterSource('whatsapp_qr')" class="filter-btn text-xs px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 transition-all" data-src="whatsapp_qr">📱 WhatsApp QR</button>
+        </div>
+
+        <!-- Transcription list -->
+        <div id="tx-list" class="flex flex-col gap-3">
+          <div class="text-center text-gray-500 py-12 text-sm">Loading...</div>
+        </div>
+
+        <!-- Load more -->
+        <div class="text-center mt-5">
+          <button onclick="loadMore()" id="load-more-btn" class="hidden glass border border-white/10 hover:border-[#34d399]/30 px-6 py-2.5 rounded-xl text-sm transition-all">
+            Load more
+          </button>
+        </div>
+      </div>
+
+      <!-- SECTION: QR Code -->
+      <div id="section-qr" class="hidden">
+        <h2 class="font-bold text-lg mb-5">📱 WhatsApp QR Connection</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-2xl">
+          <div class="card">
+            <p class="text-sm font-semibold mb-3 text-[#34d399]">Scan with WhatsApp</p>
+            <div id="qr-container" class="flex items-center justify-center bg-white rounded-2xl p-4 min-h-48">
+              <p class="text-gray-800 text-sm">Loading QR...</p>
             </div>
-            <div class="flex items-start gap-3">
-              <span class="text-base flex-shrink-0">💬</span>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm text-gray-300">14 messages captured in Suppliers</p>
-                <p class="text-xs text-gray-600 mt-0.5">Group activity</p>
+            <p class="text-xs text-gray-500 mt-3 text-center">Open WhatsApp → Devices → Link a device → Scan</p>
+            <button onclick="refreshQR()" class="w-full mt-3 glass border border-white/10 hover:border-[#34d399]/30 py-2 rounded-xl text-xs transition-all">🔄 Refresh QR</button>
+          </div>
+          <div class="card">
+            <p class="text-sm font-semibold mb-3">Connection Status</p>
+            <div id="qr-status" class="flex flex-col gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+                <span class="text-sm text-gray-400">Checking status...</span>
               </div>
-              <span class="text-xs text-gray-600 flex-shrink-0">17m ago</span>
             </div>
-            <div class="flex items-start gap-3">
-              <span class="text-base flex-shrink-0">🧠</span>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm text-gray-300">AI search: "budget for tiles"</p>
-                <p class="text-xs text-gray-600 mt-0.5">Found 3 results across 2 groups</p>
-              </div>
-              <span class="text-xs text-gray-600 flex-shrink-0">34m ago</span>
-            </div>
-            <div class="flex items-start gap-3">
-              <span class="text-base flex-shrink-0">🎤</span>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm text-gray-300">María L. sent a voice note in Management</p>
-                <p class="text-xs text-gray-600 mt-0.5">1:14 — transcribed and saved</p>
-              </div>
-              <span class="text-xs text-gray-600 flex-shrink-0">1h ago</span>
-            </div>
-            <div class="flex items-start gap-3">
-              <span class="text-base flex-shrink-0">📊</span>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm text-gray-300">Daily summaries generated for all 4 groups</p>
-                <p class="text-xs text-gray-600 mt-0.5">Delivered to dashboard</p>
-              </div>
-              <span class="text-xs text-gray-600 flex-shrink-0">7:00 AM</span>
+            <div class="mt-4 bg-white/3 rounded-xl p-3">
+              <p class="text-xs text-gray-500 leading-relaxed">When connected, all voice notes and messages from your WhatsApp groups are captured and transcribed automatically.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Transcriptions -->
-      <div class="card mb-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="font-bold text-sm">Recent Voice Note Transcriptions</h2>
-          <button class="text-xs text-[#34d399] hover:text-[#6ee7b7] transition-colors">View all</button>
-        </div>
-        <div class="flex flex-col gap-3">
-          <!-- T1 -->
-          <div class="glass p-4">
-            <div class="flex items-start justify-between gap-3 mb-2 flex-wrap">
-              <div class="flex items-center gap-2">
-                <div class="w-7 h-7 rounded-full bg-orange-500/20 flex items-center justify-center text-xs flex-shrink-0">CR</div>
-                <div>
-                  <span class="text-sm font-semibold">Carlos R.</span>
-                  <span class="text-gray-600 text-xs"> · Construction Team</span>
-                </div>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs text-gray-600">9:41 AM</span>
-                <span class="text-xs bg-white/5 text-gray-400 px-2 py-0.5 rounded">🎤 0:52</span>
-              </div>
-            </div>
-            <p class="text-xs text-gray-500 mb-2 leading-relaxed">"Necesitamos revisar los precios del cemento antes del lunes, el proveedor dijo que van a subir 15% desde la próxima semana."</p>
-            <div class="flex items-start gap-2 bg-[#34d399]/6 border border-[#34d399]/15 rounded-lg px-3 py-2">
-              <span class="text-[#34d399] text-xs flex-shrink-0">💡</span>
-              <p class="text-xs text-gray-300">Cement prices increasing 15% next week — review supplier before Monday.</p>
-            </div>
-          </div>
-          <!-- T2 -->
-          <div class="glass p-4">
-            <div class="flex items-start justify-between gap-3 mb-2 flex-wrap">
-              <div class="flex items-center gap-2">
-                <div class="w-7 h-7 rounded-full bg-blue-500/20 flex items-center justify-center text-xs flex-shrink-0">ML</div>
-                <div>
-                  <span class="text-sm font-semibold">María L.</span>
-                  <span class="text-gray-600 text-xs"> · Management</span>
-                </div>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs text-gray-600">9:28 AM</span>
-                <span class="text-xs bg-white/5 text-gray-400 px-2 py-0.5 rounded">🎤 1:14</span>
-              </div>
-            </div>
-            <p class="text-xs text-gray-500 mb-2 leading-relaxed">"El cliente de Piantini confirmó la reunión para el viernes a las 3 PM. Hay que preparar el presupuesto actualizado con los nuevos materiales."</p>
-            <div class="flex items-start gap-2 bg-[#34d399]/6 border border-[#34d399]/15 rounded-lg px-3 py-2">
-              <span class="text-[#34d399] text-xs flex-shrink-0">💡</span>
-              <p class="text-xs text-gray-300">Piantini client confirmed Friday 3pm. Prepare updated budget with new materials.</p>
-            </div>
-          </div>
-          <!-- T3 -->
-          <div class="glass p-4">
-            <div class="flex items-start justify-between gap-3 mb-2 flex-wrap">
-              <div class="flex items-center gap-2">
-                <div class="w-7 h-7 rounded-full bg-green-500/20 flex items-center justify-center text-xs flex-shrink-0">JP</div>
-                <div>
-                  <span class="text-sm font-semibold">Jean P.</span>
-                  <span class="text-gray-600 text-xs"> · Maintenance Crew</span>
-                </div>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs text-gray-600">8:55 AM</span>
-                <span class="text-xs bg-white/5 text-gray-400 px-2 py-0.5 rounded">🎤 0:33</span>
-              </div>
-            </div>
-            <p class="text-xs text-gray-500 mb-2 leading-relaxed">"La bomba de agua del tercer piso está fallando de nuevo. Voy a necesitar el técnico hoy si es posible."</p>
-            <div class="flex items-start gap-2 bg-[#34d399]/6 border border-[#34d399]/15 rounded-lg px-3 py-2">
-              <span class="text-[#34d399] text-xs flex-shrink-0">💡</span>
-              <p class="text-xs text-gray-300">3rd floor water pump failing again — technician needed today urgently.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Daily Summaries -->
-      <div class="card">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="font-bold text-sm">📊 Today's Group Summaries</h2>
-          <span class="text-xs text-gray-600">Generated 7:00 AM</span>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div class="glass p-4">
-            <p class="text-xs font-semibold text-[#34d399] mb-2">🏗️ Construction Team</p>
-            <ul class="flex flex-col gap-1.5">
-              <li class="text-xs text-gray-400 flex items-start gap-1.5"><span class="text-gray-600">•</span>Cement prices rising 15% — review before Monday</li>
-              <li class="text-xs text-gray-400 flex items-start gap-1.5"><span class="text-gray-600">•</span>First floor survey complete, plans updating today</li>
-              <li class="text-xs text-gray-400 flex items-start gap-1.5"><span class="text-gray-600">•</span>43 voice notes captured, 847 total messages</li>
-            </ul>
-          </div>
-          <div class="glass p-4">
-            <p class="text-xs font-semibold text-indigo-400 mb-2">💼 Management</p>
-            <ul class="flex flex-col gap-1.5">
-              <li class="text-xs text-gray-400 flex items-start gap-1.5"><span class="text-gray-600">•</span>Piantini meeting confirmed Friday 3pm</li>
-              <li class="text-xs text-gray-400 flex items-start gap-1.5"><span class="text-gray-600">•</span>Updated budget quote needed before meeting</li>
-              <li class="text-xs text-gray-400 flex items-start gap-1.5"><span class="text-gray-600">•</span>11 voice notes captured this week</li>
-            </ul>
-          </div>
-          <div class="glass p-4">
-            <p class="text-xs font-semibold text-amber-400 mb-2">🔧 Maintenance Crew</p>
-            <ul class="flex flex-col gap-1.5">
-              <li class="text-xs text-gray-400 flex items-start gap-1.5"><span class="text-gray-600">•</span>3rd floor pump needs urgent attention</li>
-              <li class="text-xs text-gray-400 flex items-start gap-1.5"><span class="text-gray-600">•</span>Technician contact: Juan, call before noon</li>
-              <li class="text-xs text-gray-400 flex items-start gap-1.5"><span class="text-gray-600">•</span>18 voice notes this week</li>
-            </ul>
-          </div>
-          <div class="glass p-4">
-            <p class="text-xs font-semibold text-blue-400 mb-2">📦 Suppliers</p>
-            <ul class="flex flex-col gap-1.5">
-              <li class="text-xs text-gray-400 flex items-start gap-1.5"><span class="text-gray-600">•</span>Awaiting quote from Ferretería El Centro</li>
-              <li class="text-xs text-gray-400 flex items-start gap-1.5"><span class="text-gray-600">•</span>Tile delivery confirmed for Thursday</li>
-              <li class="text-xs text-gray-400 flex items-start gap-1.5"><span class="text-gray-600">•</span>7 voice notes this week</li>
-            </ul>
-          </div>
+      <!-- SECTION: Stats -->
+      <div id="section-stats" class="hidden">
+        <h2 class="font-bold text-lg mb-5">📊 Stats & Debug</h2>
+        <div class="card max-w-xl">
+          <p class="text-sm font-semibold mb-4">Database raw stats</p>
+          <pre id="stats-raw" class="text-xs text-gray-400 bg-white/3 rounded-xl p-4 overflow-auto max-h-96">Loading...</pre>
         </div>
       </div>
 
@@ -340,28 +166,180 @@ body{overflow:hidden}
 </div>
 
 <script>
-const answers = {
-  tiles: "On March 8, Carlos and Luis discussed the tile budget in Construction Team. Carlos said Italian tiles would cost ~$4,200. He proposed switching to a local supplier for $2,800. Luis agreed in a voice note at 2:14 PM.",
-  budget: "Budget increase of 15% discussed today by Carlos R. in Construction Team (voice note 9:41 AM). María mentioned updating the Piantini quote with new material prices (Management, 9:28 AM).",
-  meeting: "María L. confirmed in Management group (9:28 AM): Piantini client meeting is Friday at 3 PM. Updated budget needed before the meeting.",
-  pump: "Jean P. reported in Maintenance Crew (8:55 AM) that the 3rd floor water pump is failing again and a technician is needed today urgently.",
-  cement: "Carlos R. warned in Construction Team (9:41 AM) that cement prices will increase 15% next week. Supplier confirmed the change. Review before Monday.",
-  default: "Based on your groups: Carlos flagged a 15% cement price increase (Construction Team, 9:41 AM). María confirmed the Piantini meeting for Friday 3pm (Management, 9:28 AM). Jean reported the 3rd floor pump needs urgent repair (Maintenance, 8:55 AM)."
-};
+let allRows = [];
+let offset = 0;
+let currentFilter = 'all';
+const LIMIT = 30;
+
+// Source detection
+function getSource(row) {
+  if (row.telegram_id) return 'telegram';
+  if (row.from_number) return 'whatsapp_business';
+  return 'whatsapp_qr';
+}
+
+function sourceBadge(row) {
+  const src = getSource(row);
+  if (src === 'telegram') return '<span class="badge-tg">TG</span>';
+  if (src === 'whatsapp_business') return '<span class="badge-wa">WA Biz</span>';
+  return '<span class="badge-waqr">QR</span>';
+}
+
+function sourceLabel(row) {
+  const src = getSource(row);
+  if (src === 'telegram') return 'Telegram · ID ' + row.telegram_id;
+  if (src === 'whatsapp_business') return 'WA Business · ' + row.from_number;
+  return 'WhatsApp QR · ' + (row.user_identifier || 'unknown');
+}
+
+function formatDuration(secs) {
+  if (!secs) return null;
+  const s = Math.round(secs);
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return m > 0 ? `${m}m ${r}s` : `${r}s`;
+}
+
+function timeAgo(iso) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return new Date(iso).toLocaleDateString();
+}
+
+function renderRow(row) {
+  const dur = formatDuration(row.duration_seconds);
+  const text = (row.transcription || '').trim();
+  const preview = text.length > 200 ? text.slice(0, 200) + '…' : text;
+  return `<div class="glass p-4 transition-all hover:border-white/15">
+    <div class="flex items-start justify-between gap-3 mb-2 flex-wrap">
+      <div class="flex items-center gap-2 flex-wrap">
+        ${sourceBadge(row)}
+        <span class="text-xs text-gray-500">${sourceLabel(row)}</span>
+        ${dur ? `<span class="text-xs bg-white/5 text-gray-400 px-2 py-0.5 rounded">🎤 ${dur}</span>` : ''}
+      </div>
+      <span class="text-xs text-gray-600">${timeAgo(row.created_at)}</span>
+    </div>
+    <p class="text-sm text-gray-300 leading-relaxed">${escHtml(preview)}</p>
+    ${row.summary ? `<div class="mt-2 flex items-start gap-2 bg-[#34d399]/6 border border-[#34d399]/15 rounded-lg px-3 py-2"><span class="text-[#34d399] text-xs flex-shrink-0">💡</span><p class="text-xs text-gray-400">${escHtml(row.summary)}</p></div>` : ''}
+  </div>`;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function filterSource(src) {
+  currentFilter = src;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.src === src);
+    b.classList.toggle('bg-[#34d399]/10', b.dataset.src === src);
+    b.classList.toggle('border-[#34d399]/30', b.dataset.src === src);
+    b.classList.toggle('text-[#34d399]', b.dataset.src === src);
+    b.classList.toggle('bg-white/5', b.dataset.src !== src);
+    b.classList.toggle('border-white/10', b.dataset.src !== src);
+  });
+  renderList();
+}
+
+function renderList() {
+  const filtered = currentFilter === 'all' ? allRows : allRows.filter(r => getSource(r) === currentFilter);
+  const el = document.getElementById('tx-list');
+  if (!filtered.length) {
+    el.innerHTML = '<div class="text-center text-gray-500 py-12 text-sm">No transcriptions found</div>';
+    return;
+  }
+  el.innerHTML = filtered.map(renderRow).join('');
+}
+
+async function loadTranscriptions(reset = true) {
+  if (reset) { offset = 0; allRows = []; }
+  const search = document.getElementById('search-input').value;
+  let url = `/api/transcriptions?limit=${LIMIT}&offset=${offset}`;
+  if (search) url += `&q=${encodeURIComponent(search)}`;
+  try {
+    const r = await fetch(url);
+    if (r.status === 401) { window.location.href = '/login'; return; }
+    const json = await r.json();
+    if (reset) allRows = json.rows || [];
+    else allRows = allRows.concat(json.rows || []);
+    offset += (json.rows || []).length;
+    renderList();
+    const btn = document.getElementById('load-more-btn');
+    btn.classList.toggle('hidden', (json.rows || []).length < LIMIT);
+  } catch(e) {
+    document.getElementById('tx-list').innerHTML = `<div class="text-center text-red-400 py-8 text-sm">Error: ${e.message}</div>`;
+  }
+}
+
+async function loadStats() {
+  try {
+    const r = await fetch('/api/stats');
+    if (r.status === 401) return;
+    const s = await r.json();
+    document.getElementById('stat-total').textContent = s.total || 0;
+    document.getElementById('stat-mins').textContent = (s.totalMinutes || 0).toFixed(1);
+    document.getElementById('stat-today').textContent = s.today || 0;
+    document.getElementById('stat-tg').textContent = s.sources?.telegram || 0;
+    document.getElementById('stat-wa').textContent = s.sources?.whatsapp_business || 0;
+    document.getElementById('stat-qr').textContent = s.sources?.whatsapp_qr || 0;
+    document.querySelectorAll('#plan-label').forEach(el => {
+      el.textContent = `${s.total} total · ${s.today} today`;
+    });
+    document.getElementById('stats-raw').textContent = JSON.stringify(s, null, 2);
+  } catch {}
+}
+
+async function loadQR() {
+  const container = document.getElementById('qr-container');
+  container.innerHTML = '<p class="text-gray-800 text-sm">Loading QR...</p>';
+  const img = new Image();
+  img.onload = () => {
+    container.innerHTML = '';
+    img.className = 'w-full max-w-xs';
+    container.appendChild(img);
+  };
+  img.onerror = () => {
+    container.innerHTML = '<div class="text-center py-4"><p class="text-gray-600 text-sm">QR not available</p><p class="text-gray-700 text-xs mt-1">WhatsApp may already be connected</p></div>';
+    document.getElementById('qr-status').innerHTML = `
+      <div class="flex items-center gap-3"><div class="w-2.5 h-2.5 rounded-full bg-[#34d399]"></div><span class="text-sm text-gray-300">Likely connected</span></div>
+      <p class="text-xs text-gray-600">If not, send a message to the bot to trigger QR generation</p>`;
+  };
+  img.src = '/api/qr?t=' + Date.now();
+}
+
+function refreshQR() { loadQR(); }
+
+function loadMore() {
+  loadTranscriptions(false);
+}
 
 function doSearch(q) {
-  if (!q.trim()) return;
-  const lower = q.toLowerCase();
-  let answer = answers.default;
-  if (lower.includes('tile') || lower.includes('baldosa')) answer = answers.tiles;
-  else if (lower.includes('budget') || lower.includes('presupuesto')) answer = answers.budget;
-  else if (lower.includes('meeting') || lower.includes('reuni')) answer = answers.meeting;
-  else if (lower.includes('pump') || lower.includes('bomba')) answer = answers.pump;
-  else if (lower.includes('cement') || lower.includes('cemento')) answer = answers.cement;
-  document.getElementById('ai-answer').textContent = answer;
-  document.getElementById('ai-result').classList.remove('hidden');
-  document.getElementById('search-input').value = '';
+  loadTranscriptions(true);
 }
+
+function showSection(name) {
+  ['transcriptions','qr','stats'].forEach(s => {
+    document.getElementById('section-' + s).classList.toggle('hidden', s !== name);
+  });
+  document.querySelectorAll('.nav-item').forEach((el, i) => {
+    el.classList.toggle('active', el.textContent.trim().toLowerCase().includes(name.slice(0,3)));
+  });
+  if (name === 'qr') loadQR();
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar-wrap').classList.remove('open');
+}
+
+// Init
+loadTranscriptions();
+loadStats();
+setInterval(loadStats, 30000); // refresh stats every 30s
+setInterval(() => loadTranscriptions(true), 60000); // refresh list every 60s
 </script>
 </body>
 </html>
