@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Rewa — Dashboard</title>
+<title>Retena — Dashboard</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 *{box-sizing:border-box}
@@ -11,12 +11,12 @@ body{overflow-x:hidden}
 .sidebar{background:#070e1c;border-right:1px solid rgba(255,255,255,.06)}
 .nav-item{padding:9px 12px;border-radius:9px;font-size:13px;display:flex;align-items:center;gap:9px;color:#6b7280;transition:all .2s;cursor:pointer;white-space:nowrap}
 .nav-item:hover,.nav-item.active{background:rgba(52,211,153,.08);color:#fff}
-.nav-item.active{color:#34d399}
+.nav-item.active{color:#f5b86e}
 .glass{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px}
 .card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px}
 /* source badges */
 .badge-tg{background:rgba(34,211,238,.12);color:#22d3ee;border:1px solid rgba(34,211,238,.25);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;letter-spacing:.3px}
-.badge-wa{background:rgba(52,211,153,.12);color:#34d399;border:1px solid rgba(52,211,153,.25);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.badge-wa{background:rgba(52,211,153,.12);color:#f5b86e;border:1px solid rgba(52,211,153,.25);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;letter-spacing:.3px}
 .badge-qr{background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.25);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;letter-spacing:.3px}
 /* tx card */
 .tx-card{background:#08111f;border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden;transition:border-color .2s}
@@ -28,14 +28,14 @@ body{overflow-x:hidden}
 .bullet-dot{width:5px;height:5px;border-radius:50%;background:#f59e0b;flex-shrink:0;margin-top:6px}
 /* filter bar */
 .filter-chip{padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#9ca3af;transition:all .2s;white-space:nowrap}
-.filter-chip.active{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34d399}
+.filter-chip.active{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#f5b86e}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#1a3a2a;border-radius:3px}
 /* PDF print styles */
 @media print{
   .no-print{display:none!important}
   body{background:#fff!important;color:#111!important}
   .pdf-page{background:#fff;color:#111;font-family:'Times New Roman',serif}
-  .pdf-header{border-bottom:2px solid #10b981;padding-bottom:12px;margin-bottom:20px}
+  .pdf-header{border-bottom:2px solid #f39c3a;padding-bottom:12px;margin-bottom:20px}
   .pdf-card{border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin-bottom:14px;break-inside:avoid}
   .pdf-badge-tg{background:#e0f7fa;color:#0e7490;border:1px solid #a5f3fc;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700}
   .pdf-badge-wa{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700}
@@ -52,8 +52,8 @@ body{overflow-x:hidden}
   <!-- Desktop Sidebar -->
   <div class="sidebar no-print hidden md:flex flex-col w-48 flex-shrink-0 py-4 px-2.5">
     <div class="flex items-center gap-2 px-2 mb-7">
-      <div class="w-8 h-8 rounded-lg bg-[#10b981] flex items-center justify-center font-bold text-black text-sm flex-shrink-0">R</div>
-      <span class="font-bold text-sm">Rewa</span>
+      <div class="w-8 h-8 rounded-lg bg-[#f39c3a] flex items-center justify-center font-bold text-black text-sm flex-shrink-0">R</div>
+      <span class="font-bold text-sm">Retena</span>
     </div>
     <nav class="flex flex-col gap-0.5 flex-1">
       <div class="nav-item active" onclick="showSection('feed')" id="nav-feed">🎤 Feed</div>
@@ -62,8 +62,8 @@ body{overflow-x:hidden}
       <div class="flex-1"></div>
       <a href="/logout" class="nav-item text-red-400 hover:text-red-300">🚪 Logout</a>
     </nav>
-    <div class="mx-1 mt-3 bg-[#34d399]/6 border border-[#34d399]/15 rounded-xl p-3">
-      <p class="text-xs text-[#34d399] font-bold">Sandbox</p>
+    <div class="mx-1 mt-3 bg-[#f5b86e]/6 border border-[#f5b86e]/15 rounded-xl p-3">
+      <p class="text-xs text-[#f5b86e] font-bold">Sandbox</p>
       <p class="text-xs text-gray-500 mt-0.5" id="sidebar-summary">—</p>
     </div>
   </div>
@@ -81,7 +81,7 @@ body{overflow-x:hidden}
       </div>
       <!-- Actions -->
       <div class="flex items-center gap-2 ml-auto flex-shrink-0">
-        <button onclick="exportPDF()" class="hidden sm:flex items-center gap-1.5 text-xs glass border border-white/10 hover:border-[#34d399]/30 px-3 py-2 rounded-xl transition-all">
+        <button onclick="exportPDF()" class="hidden sm:flex items-center gap-1.5 text-xs glass border border-white/10 hover:border-[#f5b86e]/30 px-3 py-2 rounded-xl transition-all">
           📄 Export PDF
         </button>
         <button onclick="applyFilters(true)" class="text-xs glass border border-white/10 hover:border-white/20 px-3 py-2 rounded-xl transition-all">🔄</button>
@@ -138,7 +138,7 @@ body{overflow-x:hidden}
           <div class="text-center text-gray-500 py-12 text-sm">Loading...</div>
         </div>
         <div class="text-center mt-4">
-          <button onclick="loadMore()" id="load-more-btn" class="hidden glass border border-white/10 hover:border-[#34d399]/30 px-6 py-2.5 rounded-xl text-sm transition-all">Load more</button>
+          <button onclick="loadMore()" id="load-more-btn" class="hidden glass border border-white/10 hover:border-[#f5b86e]/30 px-6 py-2.5 rounded-xl text-sm transition-all">Load more</button>
         </div>
       </div>
 
@@ -147,12 +147,12 @@ body{overflow-x:hidden}
         <h2 class="font-bold text-base mb-4">📱 WhatsApp QR Connection</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
           <div class="card p-4">
-            <p class="text-sm font-semibold mb-3 text-[#34d399]">Scan with WhatsApp</p>
+            <p class="text-sm font-semibold mb-3 text-[#f5b86e]">Scan with WhatsApp</p>
             <div id="qr-container" class="flex items-center justify-center bg-white rounded-xl p-3 min-h-44">
               <p class="text-gray-700 text-sm">Loading...</p>
             </div>
             <p class="text-xs text-gray-500 mt-2 text-center">WhatsApp → Devices → Link a device</p>
-            <button onclick="loadQR()" class="w-full mt-2 glass border border-white/10 hover:border-[#34d399]/30 py-2 rounded-xl text-xs transition-all">🔄 Refresh</button>
+            <button onclick="loadQR()" class="w-full mt-2 glass border border-white/10 hover:border-[#f5b86e]/30 py-2 rounded-xl text-xs transition-all">🔄 Refresh</button>
           </div>
           <div class="card p-4">
             <p class="text-sm font-semibold mb-3">Status</p>
@@ -276,7 +276,7 @@ function renderCard(row, idx) {
     <!-- Transcript -->
     <div class="px-4 pt-3 pb-4">
       <p class="tx-body text-sm text-gray-300 leading-relaxed" id="tx-body-${idx}">${esc(text)}</p>
-      ${text.length > 180 ? `<button onclick="toggleExpand(${idx})" id="tx-toggle-${idx}" class="mt-2 text-xs text-[#34d399] hover:text-[#6ee7b7] transition-colors">▼ Show full transcript</button>` : ''}
+      ${text.length > 180 ? `<button onclick="toggleExpand(${idx})" id="tx-toggle-${idx}" class="mt-2 text-xs text-[#f5b86e] hover:text-[#6ee7b7] transition-colors">▼ Show full transcript</button>` : ''}
     </div>
   </div>`;
 }
@@ -387,7 +387,7 @@ async function loadQR() {
   img.onload = () => { c.innerHTML = ''; img.className = 'w-full max-w-xs'; c.appendChild(img); };
   img.onerror = () => {
     c.innerHTML = '<div class="text-center py-4"><p class="text-gray-600 text-sm">Already connected</p><p class="text-xs text-gray-700 mt-1">or service restarting</p></div>';
-    document.getElementById('qr-status-area').innerHTML = '<div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-[#34d399]"></div><span class="text-sm text-gray-300">Likely connected ✓</span></div>';
+    document.getElementById('qr-status-area').innerHTML = '<div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-[#f5b86e]"></div><span class="text-sm text-gray-300">Likely connected ✓</span></div>';
   };
   img.src = '/api/qr?t=' + Date.now();
 }
@@ -405,13 +405,13 @@ function exportPDF() {
 
   const pdfHtml = `<!DOCTYPE html><html><head>
 <meta charset="UTF-8"/>
-<title>Rewa Transcriptions — ${new Date().toLocaleDateString()}</title>
+<title>Retena Transcriptions — ${new Date().toLocaleDateString()}</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Georgia',serif;background:#fff;color:#111;padding:32px;font-size:12px;max-width:800px;margin:0 auto}
-.header{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:2px solid #10b981;padding-bottom:14px;margin-bottom:22px}
+.header{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:2px solid #f39c3a;padding-bottom:14px;margin-bottom:22px}
 .logo{display:flex;align-items:center;gap:10px}
-.logo-icon{width:36px;height:36px;border-radius:9px;background:#10b981;display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:18px;flex-shrink:0;line-height:36px;text-align:center}
+.logo-icon{width:36px;height:36px;border-radius:9px;background:#f39c3a;display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:18px;flex-shrink:0;line-height:36px;text-align:center}
 .logo-text{font-size:20px;font-weight:900;letter-spacing:-0.5px}
 .logo-sub{font-size:10px;color:#6b7280;margin-top:1px}
 .meta{text-align:right;font-size:10px;color:#6b7280;line-height:1.8}
@@ -434,7 +434,7 @@ body{font-family:'Georgia',serif;background:#fff;color:#111;padding:32px;font-si
 <div class="header">
   <div class="logo">
     <div class="logo-icon">R</div>
-    <div><div class="logo-text">Rewa</div><div class="logo-sub">AI Transcription Report</div></div>
+    <div><div class="logo-text">Retena</div><div class="logo-sub">AI Transcription Report</div></div>
   </div>
   <div class="meta">
     <strong>Transcription Export</strong>
@@ -464,7 +464,7 @@ ${rows.map(row => {
 }).join('')}
 
 <div class="footer">
-  <span>Rewa — AI Memory for WhatsApp · rewa.app</span>
+  <span>Retena — AI Memory for WhatsApp · retena.app</span>
   <span>Generated ${new Date().toLocaleDateString()} · ${rows.length} records</span>
 </div>
 </body></html>`;

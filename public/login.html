@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Rewa — Login</title>
+<title>Retena — Login</title>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-[#050c18] text-white min-h-screen flex items-center justify-center px-4">
 <div class="w-full max-w-sm">
   <div class="text-center mb-8">
-    <div class="w-14 h-14 rounded-2xl bg-[#10b981] flex items-center justify-center font-black text-black text-2xl mx-auto mb-4">R</div>
-    <h1 class="font-black text-2xl mb-1">Rewa Sandbox</h1>
+    <div class="w-14 h-14 rounded-2xl bg-[#f39c3a] flex items-center justify-center font-black text-black text-2xl mx-auto mb-4">R</div>
+    <h1 class="font-black text-2xl mb-1">Retena Sandbox</h1>
     <p class="text-gray-500 text-sm">Enter your PIN to access the dashboard</p>
   </div>
   <div class="bg-white/3 border border-white/8 rounded-2xl p-6">
@@ -24,9 +24,9 @@
       <div class="w-4 h-4 rounded-full border-2 border-gray-600 dot"></div>
     </div>
     <input type="password" id="pin" maxlength="4" placeholder="• • • •"
-      class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-center text-2xl tracking-widest outline-none focus:border-[#10b981]/50 transition-colors mb-4"
+      class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-center text-2xl tracking-widest outline-none focus:border-[#f39c3a]/50 transition-colors mb-4"
       autocomplete="off" inputmode="numeric"/>
-    <button onclick="doLogin()" class="w-full bg-[#10b981] hover:bg-[#34d399] text-black font-bold py-3 rounded-xl transition-all" id="btn">
+    <button onclick="doLogin()" class="w-full bg-[#f39c3a] hover:bg-[#f5b86e] text-black font-bold py-3 rounded-xl transition-all" id="btn">
       Enter
     </button>
   </div>
@@ -38,8 +38,8 @@ const dots = document.querySelectorAll('.dot');
 pin.addEventListener('input', () => {
   const v = pin.value;
   dots.forEach((d, i) => {
-    d.classList.toggle('bg-[#10b981]', i < v.length);
-    d.classList.toggle('border-[#10b981]', i < v.length);
+    d.classList.toggle('bg-[#f39c3a]', i < v.length);
+    d.classList.toggle('border-[#f39c3a]', i < v.length);
     d.classList.toggle('border-gray-600', i >= v.length);
   });
   if (v.length === 4) doLogin();
@@ -63,7 +63,7 @@ async function doLogin() {
     } else {
       document.getElementById('err').classList.remove('hidden');
       pin.value = '';
-      dots.forEach(d => { d.classList.remove('bg-[#10b981]', 'border-[#10b981]'); d.classList.add('border-gray-600'); });
+      dots.forEach(d => { d.classList.remove('bg-[#f39c3a]', 'border-[#f39c3a]'); d.classList.add('border-gray-600'); });
       btn.textContent = 'Enter';
       btn.disabled = false;
       pin.focus();

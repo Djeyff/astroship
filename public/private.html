@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Rewa Private — Real Data</title>
+<title>Retena Private — Real Data</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 *{box-sizing:border-box}
@@ -11,12 +11,12 @@ body{overflow-x:hidden}
 .sidebar{background:#070e1c;border-right:1px solid rgba(255,255,255,.06)}
 .nav-item{padding:9px 12px;border-radius:9px;font-size:13px;display:flex;align-items:center;gap:9px;color:#6b7280;transition:all .2s;cursor:pointer;white-space:nowrap}
 .nav-item:hover,.nav-item.active{background:rgba(52,211,153,.08);color:#fff}
-.nav-item.active{color:#34d399}
+.nav-item.active{color:#f5b86e}
 .glass{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px}
 .card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px}
 /* source badges */
 .badge-tg{background:rgba(34,211,238,.12);color:#22d3ee;border:1px solid rgba(34,211,238,.25);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;letter-spacing:.3px}
-.badge-wa{background:rgba(52,211,153,.12);color:#34d399;border:1px solid rgba(52,211,153,.25);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.badge-wa{background:rgba(52,211,153,.12);color:#f5b86e;border:1px solid rgba(52,211,153,.25);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;letter-spacing:.3px}
 .badge-qr{background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.25);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;letter-spacing:.3px}
 .badge-cr{background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.25);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;letter-spacing:.3px}
 /* tx card */
@@ -29,14 +29,14 @@ body{overflow-x:hidden}
 .bullet-dot{width:5px;height:5px;border-radius:50%;background:#f59e0b;flex-shrink:0;margin-top:6px}
 /* filter bar */
 .filter-chip{padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#9ca3af;transition:all .2s;white-space:nowrap}
-.filter-chip.active{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34d399}
+.filter-chip.active{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#f5b86e}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#1a3a2a;border-radius:3px}
 /* Settings panel */
 .settings-panel{position:fixed;top:60px;right:12px;z-index:100;background:#0d1829;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:16px;width:230px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
 .toggle{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}
 .toggle:last-child{border-bottom:none}
 .toggle-btn{width:36px;height:20px;border-radius:10px;background:rgba(255,255,255,.12);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
-.toggle-btn.on{background:#10b981}
+.toggle-btn.on{background:#f39c3a}
 .toggle-btn::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s}
 .toggle-btn.on::after{transform:translateX(16px)}
 /* PDF print styles */
@@ -49,8 +49,8 @@ body{overflow-x:hidden}
   <!-- Desktop Sidebar -->
   <div class="sidebar no-print hidden md:flex flex-col w-48 flex-shrink-0 py-4 px-2.5">
     <div class="flex items-center gap-2 px-2 mb-7">
-      <div class="w-8 h-8 rounded-lg bg-[#10b981] flex items-center justify-center font-bold text-black text-sm flex-shrink-0">R</div>
-      <span class="font-bold text-sm">Rewa</span>
+      <div class="w-8 h-8 rounded-lg bg-[#f39c3a] flex items-center justify-center font-bold text-black text-sm flex-shrink-0">R</div>
+      <span class="font-bold text-sm">Retena</span>
     </div>
     <nav class="flex flex-col gap-0.5 flex-1">
       <div class="nav-item active" onclick="showSection('feed')" id="nav-feed">🎤 Feed</div>
@@ -60,8 +60,8 @@ body{overflow-x:hidden}
       <div class="flex-1"></div>
       <a href="/logout" class="nav-item text-red-400 hover:text-red-300">🚪 Logout</a>
     </nav>
-    <div class="mx-1 mt-3 bg-[#34d399]/6 border border-[#34d399]/15 rounded-xl p-3">
-      <p class="text-xs text-[#34d399] font-bold">Sandbox</p>
+    <div class="mx-1 mt-3 bg-[#f5b86e]/6 border border-[#f5b86e]/15 rounded-xl p-3">
+      <p class="text-xs text-[#f5b86e] font-bold">Sandbox</p>
       <p class="text-xs text-gray-500 mt-0.5" id="sidebar-summary">—</p>
     </div>
   </div>
@@ -79,11 +79,11 @@ body{overflow-x:hidden}
       </div>
       <!-- Actions -->
       <div class="flex items-center gap-2 ml-auto flex-shrink-0">
-        <button onclick="exportPDF()" class="hidden sm:flex items-center gap-1.5 text-xs glass border border-white/10 hover:border-[#34d399]/30 px-3 py-2 rounded-xl transition-all">
+        <button onclick="exportPDF()" class="hidden sm:flex items-center gap-1.5 text-xs glass border border-white/10 hover:border-[#f5b86e]/30 px-3 py-2 rounded-xl transition-all">
           📄 Export PDF
         </button>
         <button onclick="applyFilters(true)" class="text-xs glass border border-white/10 hover:border-white/20 px-3 py-2 rounded-xl transition-all">🔄</button>
-        <button onclick="toggleSettings()" class="text-xs glass border border-white/10 hover:border-[#34d399]/30 px-3 py-2 rounded-xl transition-all">⚙️</button>
+        <button onclick="toggleSettings()" class="text-xs glass border border-white/10 hover:border-[#f5b86e]/30 px-3 py-2 rounded-xl transition-all">⚙️</button>
       </div>
     </div>
 
@@ -115,7 +115,7 @@ body{overflow-x:hidden}
         </select>
       </div>
       <div class="mt-3 pt-3 border-t border-white/6">
-        <button onclick="exportPDF()" class="w-full text-xs bg-[#10b981]/10 hover:bg-[#10b981]/20 border border-[#10b981]/20 text-[#34d399] py-2 rounded-xl transition-all">📄 Export PDF</button>
+        <button onclick="exportPDF()" class="w-full text-xs bg-[#f39c3a]/10 hover:bg-[#f39c3a]/20 border border-[#f39c3a]/20 text-[#f5b86e] py-2 rounded-xl transition-all">📄 Export PDF</button>
       </div>
     </div>
 
@@ -170,7 +170,7 @@ body{overflow-x:hidden}
           <div class="text-center text-gray-500 py-12 text-sm">Loading...</div>
         </div>
         <div class="text-center mt-4">
-          <button onclick="loadMore()" id="load-more-btn" class="hidden glass border border-white/10 hover:border-[#34d399]/30 px-6 py-2.5 rounded-xl text-sm transition-all">Load more</button>
+          <button onclick="loadMore()" id="load-more-btn" class="hidden glass border border-white/10 hover:border-[#f5b86e]/30 px-6 py-2.5 rounded-xl text-sm transition-all">Load more</button>
         </div>
       </div>
 
@@ -182,38 +182,38 @@ body{overflow-x:hidden}
         </div>
         <!-- Search bar -->
         <div class="flex gap-2 mb-5">
-          <div class="flex-1 flex items-center gap-2 bg-white/5 border border-white/10 focus-within:border-[#10b981]/50 rounded-xl px-4 py-3 transition-colors">
+          <div class="flex-1 flex items-center gap-2 bg-white/5 border border-white/10 focus-within:border-[#f39c3a]/50 rounded-xl px-4 py-3 transition-colors">
             <span class="text-base">🔍</span>
             <input type="text" id="ai-query" placeholder='e.g. "what did we decide about the cement price?"'
               class="bg-transparent text-sm text-gray-200 placeholder-gray-600 outline-none w-full"
               onkeydown="if(event.key==='Enter')doAiSearch()"/>
           </div>
           <button onclick="doAiSearch()" id="ai-search-btn"
-            class="bg-[#10b981] hover:bg-[#34d399] text-black font-bold px-5 py-3 rounded-xl transition-all text-sm flex-shrink-0">
+            class="bg-[#f39c3a] hover:bg-[#f5b86e] text-black font-bold px-5 py-3 rounded-xl transition-all text-sm flex-shrink-0">
             Ask
           </button>
         </div>
         <!-- Quick queries -->
         <div class="flex flex-wrap gap-2 mb-6">
           <span class="text-xs text-gray-600 self-center">Try:</span>
-          <button onclick="quickSearch(this)" class="text-xs glass border border-white/8 px-3 py-1.5 rounded-lg hover:border-[#34d399]/30 transition-all">What decisions were made today?</button>
-          <button onclick="quickSearch(this)" class="text-xs glass border border-white/8 px-3 py-1.5 rounded-lg hover:border-[#34d399]/30 transition-all">Show me urgent issues</button>
-          <button onclick="quickSearch(this)" class="text-xs glass border border-white/8 px-3 py-1.5 rounded-lg hover:border-[#34d399]/30 transition-all">What was discussed about prices?</button>
-          <button onclick="quickSearch(this)" class="text-xs glass border border-white/8 px-3 py-1.5 rounded-lg hover:border-[#34d399]/30 transition-all">Any meetings scheduled?</button>
+          <button onclick="quickSearch(this)" class="text-xs glass border border-white/8 px-3 py-1.5 rounded-lg hover:border-[#f5b86e]/30 transition-all">What decisions were made today?</button>
+          <button onclick="quickSearch(this)" class="text-xs glass border border-white/8 px-3 py-1.5 rounded-lg hover:border-[#f5b86e]/30 transition-all">Show me urgent issues</button>
+          <button onclick="quickSearch(this)" class="text-xs glass border border-white/8 px-3 py-1.5 rounded-lg hover:border-[#f5b86e]/30 transition-all">What was discussed about prices?</button>
+          <button onclick="quickSearch(this)" class="text-xs glass border border-white/8 px-3 py-1.5 rounded-lg hover:border-[#f5b86e]/30 transition-all">Any meetings scheduled?</button>
         </div>
         <!-- Loading -->
         <div id="ai-loading" class="hidden text-center py-10">
-          <div class="inline-flex items-center gap-3 text-[#34d399]">
+          <div class="inline-flex items-center gap-3 text-[#f5b86e]">
             <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
             <span class="text-sm">Searching & synthesizing answer…</span>
           </div>
         </div>
         <!-- Answer card -->
         <div id="ai-answer-card" class="hidden">
-          <div class="bg-[#34d399]/6 border border-[#34d399]/20 rounded-2xl p-5 mb-4">
+          <div class="bg-[#f5b86e]/6 border border-[#f5b86e]/20 rounded-2xl p-5 mb-4">
             <div class="flex items-center gap-2 mb-3">
-              <div class="w-6 h-6 rounded-lg bg-[#10b981] flex items-center justify-center flex-shrink-0"><span class="text-black text-xs font-bold">R</span></div>
-              <span class="text-[#34d399] text-sm font-semibold">Rewa AI</span>
+              <div class="w-6 h-6 rounded-lg bg-[#f39c3a] flex items-center justify-center flex-shrink-0"><span class="text-black text-xs font-bold">R</span></div>
+              <span class="text-[#f5b86e] text-sm font-semibold">Retena AI</span>
               <span id="ai-mode-badge" class="text-xs text-gray-600 ml-auto"></span>
             </div>
             <p id="ai-answer-text" class="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap"></p>
@@ -234,12 +234,12 @@ body{overflow-x:hidden}
         <h2 class="font-bold text-base mb-4">📱 WhatsApp QR Connection</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
           <div class="card p-4">
-            <p class="text-sm font-semibold mb-3 text-[#34d399]">Scan with WhatsApp</p>
+            <p class="text-sm font-semibold mb-3 text-[#f5b86e]">Scan with WhatsApp</p>
             <div id="qr-container" class="flex items-center justify-center bg-white rounded-xl p-3 min-h-44">
               <p class="text-gray-700 text-sm">Loading...</p>
             </div>
             <p class="text-xs text-gray-500 mt-2 text-center">WhatsApp → Devices → Link a device</p>
-            <button onclick="loadQR()" class="w-full mt-2 glass border border-white/10 hover:border-[#34d399]/30 py-2 rounded-xl text-xs transition-all">🔄 Refresh</button>
+            <button onclick="loadQR()" class="w-full mt-2 glass border border-white/10 hover:border-[#f5b86e]/30 py-2 rounded-xl text-xs transition-all">🔄 Refresh</button>
           </div>
           <div class="card p-4">
             <p class="text-sm font-semibold mb-3">Status</p>
@@ -459,7 +459,7 @@ function renderCard(row, idx) {
     <!-- Transcript -->
     <div class="px-4 pt-3 pb-4">
       <div class="tx-body text-sm text-gray-300 leading-relaxed" id="tx-body-${idx}">${formatTranscript(text)}</div>
-      ${text.length > 280 ? `<button onclick="toggleExpand(${idx})" id="tx-toggle-${idx}" class="mt-2 text-xs text-[#34d399] hover:text-[#6ee7b7] transition-colors">▼ Show all</button>` : ''}
+      ${text.length > 280 ? `<button onclick="toggleExpand(${idx})" id="tx-toggle-${idx}" class="mt-2 text-xs text-[#f5b86e] hover:text-[#6ee7b7] transition-colors">▼ Show all</button>` : ''}
       ${settings.showTranslation && row.translation ? `<div class="mt-3 bg-indigo-950/30 border border-indigo-500/15 rounded-xl px-3 py-2.5"><p class="text-xs font-semibold text-indigo-300 mb-1">🌐 Translation</p><p class="text-xs text-indigo-200 leading-relaxed">${esc(row.translation)}</p></div>` : ''}
       <div class="mt-2 flex items-center gap-2" id="tx-translate-bar-${idx}">
         <button onclick="translateCard(${idx})" class="text-xs text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1">🌐 Translate</button>
@@ -579,7 +579,7 @@ async function loadQR() {
   img.onload = () => { c.innerHTML = ''; img.className = 'w-full max-w-xs'; c.appendChild(img); };
   img.onerror = () => {
     c.innerHTML = '<div class="text-center py-4"><p class="text-gray-600 text-sm">Already connected</p><p class="text-xs text-gray-700 mt-1">or service restarting</p></div>';
-    document.getElementById('qr-status-area').innerHTML = '<div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-[#34d399]"></div><span class="text-sm text-gray-300">Likely connected ✓</span></div>';
+    document.getElementById('qr-status-area').innerHTML = '<div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-[#f5b86e]"></div><span class="text-sm text-gray-300">Likely connected ✓</span></div>';
   };
   img.src = '/api/qr?t=' + Date.now();
 }
@@ -594,7 +594,7 @@ function exportPDF() {
 function pdfBadge(row, dark) {
   const s = row.source || '';
   const styles = dark ? {
-    voice: 'background:#0d3321;color:#34d399;border:1px solid #166534;',
+    voice: 'background:#0d3321;color:#f5b86e;border:1px solid #166534;',
     text:  'background:#0c1a40;color:#60a5fa;border:1px solid #1e3a8a;',
     tg:    'background:#1a1040;color:#a78bfa;border:1px solid #4c1d95;',
   } : {
@@ -615,7 +615,7 @@ function buildPdfHtml(rows, dark) {
   const textMain = dark ? '#c9d1d9' : '#374151';
   const textMeta = dark ? '#6b7280' : '#6b7280';
   const textTs   = dark ? '#4b5563' : '#9ca3af';
-  const accent   = dark ? '#10b981' : '#10b981';
+  const accent   = dark ? '#f39c3a' : '#f39c3a';
   const bulletBg = dark ? '#0f1f10' : '#fffbeb';
   const bulletBdr= dark ? '#14532d' : '#fde68a';
   const bulletLbl= dark ? '#4ade80' : '#92400e';
@@ -623,7 +623,7 @@ function buildPdfHtml(rows, dark) {
   const dotClr   = dark ? '#22c55e' : '#d97706';
   const logoText = dark ? '#ffffff' : '#111827';
   const logoSub  = dark ? '#6b7280' : '#6b7280';
-  const divider  = dark ? '#10b981' : '#10b981';
+  const divider  = dark ? '#f39c3a' : '#f39c3a';
   const footerC  = dark ? '#374151' : '#9ca3af';
   const filterLabel = (() => {
     const src = sourceFilter === 'all' ? 'All sources' : sourceFilter;
@@ -666,13 +666,13 @@ function buildPdfHtml(rows, dark) {
 
   return '<!DOCTYPE html><html><head>' +
     '<meta charset="UTF-8"/>' +
-    '<title>Rewa Export &mdash; ' + new Date().toLocaleDateString() + '</title>' +
+    '<title>Retena Export &mdash; ' + new Date().toLocaleDateString() + '</title>' +
     '<style>' +
     '*{box-sizing:border-box;margin:0;padding:0}' +
     'body{font-family:Georgia,serif;background:' + bg + ';color:' + textMain + ';padding:32px;font-size:12px;max-width:820px;margin:0 auto}' +
     '.header{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:2px solid ' + divider + ';padding-bottom:14px;margin-bottom:22px}' +
     '.logo{display:flex;align-items:center;gap:10px}' +
-    '.logo-icon{width:36px;height:36px;border-radius:9px;background:#10b981;display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:18px;line-height:36px;text-align:center}' +
+    '.logo-icon{width:36px;height:36px;border-radius:9px;background:#f39c3a;display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:18px;line-height:36px;text-align:center}' +
     '.logo-name{font-size:20px;font-weight:900;letter-spacing:-0.5px;color:' + logoText + '}' +
     '.logo-sub{font-size:10px;color:' + logoSub + ';margin-top:1px}' +
     '.meta{text-align:right;font-size:10px;color:' + textMeta + ';line-height:1.8}' +
@@ -695,7 +695,7 @@ function buildPdfHtml(rows, dark) {
     '<div class="header">' +
       '<div class="logo">' +
         '<div class="logo-icon">R</div>' +
-        '<div><div class="logo-name">Rewa</div><div class="logo-sub">AI Transcription Report</div></div>' +
+        '<div><div class="logo-name">Retena</div><div class="logo-sub">AI Transcription Report</div></div>' +
       '</div>' +
       '<div class="meta">' +
         '<strong>Transcription Export</strong>' +
@@ -706,7 +706,7 @@ function buildPdfHtml(rows, dark) {
     '</div>' +
     cardsHtml +
     '<div class="footer">' +
-      '<span>Rewa &mdash; AI Memory for WhatsApp</span>' +
+      '<span>Retena &mdash; AI Memory for WhatsApp</span>' +
       '<span>Generated ' + new Date().toLocaleDateString() + ' &middot; ' + rows.length + ' records</span>' +
     '</div>' +
     '</body></html>';
@@ -757,7 +757,7 @@ async function doAiSearch() {
       srcEl.innerHTML = '<p class="text-xs text-gray-500 mb-2 font-semibold">Sources (' + data.sources.length + ')</p>' +
         data.sources.map((s, i) => `<div class="glass p-3 rounded-xl">
           <div class="flex items-center gap-2 mb-1.5 flex-wrap">
-            <span class="text-xs font-bold text-[#34d399]">[${i+1}]</span>
+            <span class="text-xs font-bold text-[#f5b86e]">[${i+1}]</span>
             ${badge({source: s.source})}
             <span class="text-xs text-gray-500">${esc(s.sender_name || 'Unknown')}${s.chat_name ? ' in ' + esc(s.chat_name) : ''}</span>
             <span class="text-xs text-gray-600 ml-auto">${timeAgo(s.created_at)}</span>

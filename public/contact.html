@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rewa — Contact</title>
+<title>Retena — Contact</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#050c18;--bg2:#0d1a2e;--accent:#34d399;--accent2:#6ee7b7;--text:#e2e8f0;--text2:#94a3b8;--border:#1e293b;}
+  :root{--bg:#050c18;--bg2:#0d1a2e;--accent:#f5b86e;--accent2:#6ee7b7;--text:#e2e8f0;--text2:#94a3b8;--border:#1e293b;}
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.8;}
   .container{max-width:700px;margin:0 auto;padding:4rem 2rem;}
@@ -31,7 +31,7 @@
   input::placeholder,textarea::placeholder{color:rgba(255,255,255,.25);}
   textarea{resize:vertical;min-height:120px;}
   select option{background:#0d1a2e;}
-  .btn{background:linear-gradient(135deg,#059669,#34d399);color:#050c18;font-weight:700;border:none;padding:.85rem 2rem;border-radius:10px;cursor:pointer;font-size:.95rem;font-family:inherit;transition:opacity .2s;}
+  .btn{background:linear-gradient(135deg,#E67E22,#f5b86e);color:#050c18;font-weight:700;border:none;padding:.85rem 2rem;border-radius:10px;cursor:pointer;font-size:.95rem;font-family:inherit;transition:opacity .2s;}
   .btn:hover{opacity:.9;}
   .success{display:none;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);border-radius:10px;padding:1rem 1.5rem;color:var(--accent2);margin-top:1rem;}
   footer{text-align:center;padding:2rem;border-top:1px solid var(--border);margin-top:4rem;}
@@ -40,7 +40,7 @@
 </head>
 <body>
 <div class="container">
-  <a href="/" class="back">← Back to Rewa</a>
+  <a href="/" class="back">← Back to Retena</a>
   <h1>Contact Us</h1>
   <p class="subtitle">We typically respond within a few hours during business days.</p>
 
@@ -49,25 +49,25 @@
       <div class="channel-icon">📧</div>
       <h3>General</h3>
       <p>Questions, partnerships, feedback</p>
-      <a href="mailto:hello@rewa.app">hello@rewa.app</a>
+      <a href="mailto:hello@retena.app">hello@retena.app</a>
     </div>
     <div class="channel">
       <div class="channel-icon">🔒</div>
       <h3>Security</h3>
       <p>Vulnerability reports, security concerns</p>
-      <a href="mailto:security@rewa.app">security@rewa.app</a>
+      <a href="mailto:security@retena.app">security@retena.app</a>
     </div>
     <div class="channel">
       <div class="channel-icon">⚖️</div>
       <h3>Legal</h3>
       <p>Privacy requests, compliance, legal</p>
-      <a href="mailto:legal@rewa.app">legal@rewa.app</a>
+      <a href="mailto:legal@retena.app">legal@retena.app</a>
     </div>
     <div class="channel">
       <div class="channel-icon">💬</div>
       <h3>Support</h3>
       <p>Billing, technical help, account issues</p>
-      <a href="mailto:support@rewa.app">support@rewa.app</a>
+      <a href="mailto:support@retena.app">support@retena.app</a>
     </div>
   </div>
 
@@ -110,7 +110,7 @@
   <a href="/terms">Terms</a>
   <a href="/security">Security</a>
   <a href="/contact">Contact</a>
-  <p style="margin-top:1rem;color:var(--text2);font-size:.8rem;">© 2026 Rewa. All rights reserved.</p>
+  <p style="margin-top:1rem;color:var(--text2);font-size:.8rem;">© 2026 Retena. All rights reserved.</p>
 </footer>
 <script>
 async function submitForm(e) {
@@ -120,7 +120,7 @@ async function submitForm(e) {
   // Simple mailto fallback (real form endpoint can be added later)
   const data = new FormData(e.target);
   const body = `Name: ${data.get('name')}\nEmail: ${data.get('email')}\nTopic: ${data.get('topic')}\n\n${data.get('message')}`;
-  window.location.href = `mailto:hello@rewa.app?subject=Rewa Contact: ${data.get('topic')}&body=${encodeURIComponent(body)}`;
+  window.location.href = `mailto:hello@retena.app?subject=Retena Contact: ${data.get('topic')}&body=${encodeURIComponent(body)}`;
   setTimeout(() => {
     document.getElementById('success-msg').style.display = 'block';
     btn.textContent = 'Send message →'; btn.disabled = false;

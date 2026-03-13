@@ -139,7 +139,7 @@ function supaFetch(endpoint) {
 function proxyUrl(targetUrl, res) {
   const u = new URL(targetUrl);
   const proto = u.protocol === 'https:' ? https : http;
-  proto.get({ hostname: u.hostname, path: u.pathname + u.search, headers: { 'User-Agent': 'Rewa/1.0' } }, (r) => {
+  proto.get({ hostname: u.hostname, path: u.pathname + u.search, headers: { 'User-Agent': 'Retena/1.0' } }, (r) => {
     res.writeHead(r.statusCode, { 'Content-Type': r.headers['content-type'] || 'image/png', 'Cache-Control': 'no-cache' });
     r.pipe(res);
   }).on('error', () => { res.writeHead(502); res.end('QR unavailable'); });
@@ -396,7 +396,7 @@ http.createServer(async (req, res) => {
     res.end(data);
   });
 
-}).listen(PORT, () => console.log(`Rewa on :${PORT} | public demo: /dashboard | private: /private (PIN)`));
+}).listen(PORT, () => console.log(`Retena on :${PORT} | public demo: /dashboard | private: /private (PIN)`));
 
 // ─── AI Search + Embeddings (appended) ────────────────────────────────
 // Jina AI: free multilingual embeddings (768-dim), 100+ languages
@@ -488,7 +488,7 @@ async function groqAnswer(question, contextRows) {
     `[${i+1}] ${r.source || 'unknown'} | ${r.sender_name || '?'} in "${r.chat_name || 'DM'}" | ${new Date(r.created_at).toLocaleDateString()}\n${r.text}`
   ).join('\n\n---\n\n');
 
-  const prompt = `You are Rewa, an AI assistant that helps users recall information from their WhatsApp transcriptions.
+  const prompt = `You are Retena, an AI assistant that helps users recall information from their WhatsApp transcriptions.
 
 The user asks: "${question}"
 
