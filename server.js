@@ -48,24 +48,43 @@ function decryptField(encBase64, ivBase64, tagBase64, userId) {
   } catch { return null; }
 }
 
-// Decrypt a row from the transcriptions table
+// Decrypt a row — tries multiple candidate user IDs
+// Different VozClara services used different identifiers as PBKDF2 salt:
+// - WhatsApp QR: OWNER_PHONE ("18092044903")
+// - Telegram bot: telegram_id string ("7707300903")
+// - Chrome extension / older: UUID ("e964b1e5-c32d-4809-9fdd-30f4242667b0")
+const DECRYPT_USER_IDS = [
+  OWNER_PHONE,
+  '7707300903',
+  'e964b1e5-c32d-4809-9fdd-30f4242667b0',
+];
+
+function decryptBest(encB64, ivB64, tagB64) {
+  if (!encB64 || !ivB64 || !tagB64) return null;
+  for (const uid of DECRYPT_USER_IDS) {
+    const r = decryptField(encB64, ivB64, tagB64, uid);
+    if (r) return r;
+  }
+  return null;
+}
+
 function decryptRow(row) {
-  // The userId for WhatsApp QR is always OWNER_PHONE
-  // For Telegram rows, the user_identifier in vozclara_transcriptions is the telegram_id
-  const userId = OWNER_PHONE;
+  const text = decryptBest(row.text_encrypted, row.encryption_iv, row.encryption_tag);
+  let summary = null, translation = null;
 
-  const text = decryptField(row.text_encrypted, row.encryption_iv, row.encryption_tag, userId);
-  let summary = null;
-  let translation = null;
-
-  // Extra metadata stored in audio_url JSON
   if (row.audio_url) {
     try {
       const meta = JSON.parse(row.audio_url);
       if (meta.summary_iv) {
-        summary = decryptField(row.summary_encrypted, meta.summary_iv, meta.summary_tag, userId);
+        for (const uid of DECRYPT_USER_IDS) {
+          const s = decryptField(row.summary_encrypted, meta.summary_iv, meta.summary_tag, uid);
+          if (s) { summary = s; break; }
+        }
         if (meta.translation_encrypted) {
-          translation = decryptField(meta.translation_encrypted, meta.translation_iv, meta.translation_tag, userId);
+          for (const uid of DECRYPT_USER_IDS) {
+            const t = decryptField(meta.translation_encrypted, meta.translation_iv, meta.translation_tag, uid);
+            if (t) { translation = t; break; }
+          }
         }
       }
     } catch {}
@@ -73,11 +92,11 @@ function decryptRow(row) {
 
   return {
     id: row.id,
-    text: text || '[encrypted — key mismatch]',
+    text: text || '[key mismatch]',
     summary,
     translation,
     language: row.language,
-    source: row.source,
+    source: row.source || 'unknown',
     sender_name: row.sender_name,
     chat_name: row.chat_name,
     duration_seconds: row.duration_seconds,
@@ -93,6 +112,7 @@ function supaFetch(endpoint) {
       hostname: u.hostname,
       path: u.pathname + u.search,
       method: 'GET',
+      timeout: 15000,
       headers: {
         'Authorization': `Bearer ${SUPABASE_KEY}`,
         'apikey': SUPABASE_KEY,
@@ -109,6 +129,7 @@ function supaFetch(endpoint) {
         catch(e) { reject(e); }
       });
     });
+    req.on('timeout', () => { req.destroy(new Error('Supabase timeout')); });
     req.on('error', reject);
     req.end();
   });

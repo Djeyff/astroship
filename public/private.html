@@ -435,7 +435,7 @@ function toggleExpand(idx) {
 // ─── Filter helpers ───────────────────────────────────────────────────
 function filteredRows() {
   return allRows.filter(r => {
-    if (sourceFilter !== 'all' && (r.source || '') !== sourceFilter) return false;
+    if (sourceFilter !== 'all' && getSource(r) !== sourceFilter) return false;
     if (dateFilter === 'today') {
       const today = new Date().toISOString().slice(0,10);
       if (!r.created_at.startsWith(today)) return false;
