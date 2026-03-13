@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Rewa Private — Real Data</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{box-sizing:border-box}
+body{overflow-x:hidden}
+.sidebar{background:#070e1c;border-right:1px solid rgba(255,255,255,.06)}
+.nav-item{padding:9px 12px;border-radius:9px;font-size:13px;display:flex;align-items:center;gap:9px;color:#6b7280;transition:all .2s;cursor:pointer;white-space:nowrap}
+.nav-item:hover,.nav-item.active{background:rgba(52,211,153,.08);color:#fff}
+.nav-item.active{color:#34d399}
+.glass{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px}
+/* source badges */
+.badge-tg{background:rgba(34,211,238,.12);color:#22d3ee;border:1px solid rgba(34,211,238,.25);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.badge-wa{background:rgba(52,211,153,.12);color:#34d399;border:1px solid rgba(52,211,153,.25);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.badge-qr{background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.25);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;letter-spacing:.3px}
+/* tx card */
+.tx-card{background:#08111f;border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden;transition:border-color .2s}
+.tx-card:hover{border-color:rgba(255,255,255,.13)}
+.tx-body{font-size:14px;color:#c9d1d9;line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tx-body.expanded{display:block;-webkit-line-clamp:unset}
+/* bullets */
+.bullet-item{display:flex;align-items:flex-start;gap:6px;font-size:12px;color:#fbbf24;line-height:1.5}
+.bullet-dot{width:5px;height:5px;border-radius:50%;background:#f59e0b;flex-shrink:0;margin-top:6px}
+/* filter bar */
+.filter-chip{padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#9ca3af;transition:all .2s;white-space:nowrap}
+.filter-chip.active{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34d399}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#1a3a2a;border-radius:3px}
+/* PDF print styles */
+@media print{
+  .no-print{display:none!important}
+  body{background:#fff!important;color:#111!important}
+  .pdf-page{background:#fff;color:#111;font-family:'Times New Roman',serif}
+  .pdf-header{border-bottom:2px solid #10b981;padding-bottom:12px;margin-bottom:20px}
+  .pdf-card{border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin-bottom:14px;break-inside:avoid}
+  .pdf-badge-tg{background:#e0f7fa;color:#0e7490;border:1px solid #a5f3fc;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700}
+  .pdf-badge-wa{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700}
+  .pdf-badge-qr{background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700}
+  .pdf-tx{font-size:12px;line-height:1.7;color:#374151;margin-top:8px}
+  .pdf-bullet{display:flex;gap:6px;font-size:11px;color:#b45309;margin-top:3px;align-items:flex-start}
+  .pdf-bullet-dot{width:4px;height:4px;border-radius:50%;background:#d97706;flex-shrink:0;margin-top:5px}
+}
+</style>
+</head>
+<body class="bg-[#050c18] text-white antialiased">
+<div class="flex h-screen overflow-hidden">
+
+  <!-- Desktop Sidebar -->
+  <div class="sidebar no-print hidden md:flex flex-col w-48 flex-shrink-0 py-4 px-2.5">
+    <div class="flex items-center gap-2 px-2 mb-7">
+      <div class="w-8 h-8 rounded-lg bg-[#10b981] flex items-center justify-center font-bold text-black text-sm flex-shrink-0">R</div>
+      <span class="font-bold text-sm">Rewa</span>
+    </div>
+    <nav class="flex flex-col gap-0.5 flex-1">
+      <div class="nav-item active" onclick="showSection('feed')" id="nav-feed">🎤 Feed</div>
+      <div class="nav-item" onclick="showSection('qr')" id="nav-qr">📱 WhatsApp QR</div>
+      <div class="nav-item" onclick="showSection('stats')" id="nav-stats">📊 Stats</div>
+      <div class="flex-1"></div>
+      <a href="/logout" class="nav-item text-red-400 hover:text-red-300">🚪 Logout</a>
+    </nav>
+    <div class="mx-1 mt-3 bg-[#34d399]/6 border border-[#34d399]/15 rounded-xl p-3">
+      <p class="text-xs text-[#34d399] font-bold">Sandbox</p>
+      <p class="text-xs text-gray-500 mt-0.5" id="sidebar-summary">—</p>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="flex-1 flex flex-col overflow-hidden min-w-0">
+
+    <!-- Topbar -->
+    <div class="no-print flex items-center gap-2.5 px-3 sm:px-5 py-3 border-b border-white/5 bg-[#050c18] flex-shrink-0">
+      <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-lg glass text-sm">☰</button>
+      <!-- Search -->
+      <div class="flex-1 flex items-center gap-2 bg-white/5 border border-white/8 rounded-xl px-3 py-2 max-w-sm">
+        <svg class="w-3.5 h-3.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" id="search-input" placeholder="Search..." class="bg-transparent text-xs text-gray-300 placeholder-gray-600 outline-none w-full" onkeydown="if(event.key==='Enter')applyFilters()"/>
+      </div>
+      <!-- Actions -->
+      <div class="flex items-center gap-2 ml-auto flex-shrink-0">
+        <button onclick="exportPDF()" class="hidden sm:flex items-center gap-1.5 text-xs glass border border-white/10 hover:border-[#34d399]/30 px-3 py-2 rounded-xl transition-all">
+          📄 Export PDF
+        </button>
+        <button onclick="applyFilters(true)" class="text-xs glass border border-white/10 hover:border-white/20 px-3 py-2 rounded-xl transition-all">🔄</button>
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="no-print hidden md:hidden bg-[#070e1c] border-b border-white/5 px-3 py-2 flex flex-wrap gap-1.5">
+      <div class="nav-item text-xs" onclick="showSection('feed');toggleMobileMenu()">🎤 Feed</div>
+      <div class="nav-item text-xs" onclick="showSection('qr');toggleMobileMenu()">📱 QR</div>
+      <div class="nav-item text-xs" onclick="showSection('stats');toggleMobileMenu()">📊 Stats</div>
+      <div class="nav-item text-xs" onclick="exportPDF()">📄 PDF</div>
+      <a href="/logout" class="nav-item text-xs text-red-400">🚪 Logout</a>
+    </div>
+
+    <!-- Content area -->
+    <div class="flex-1 overflow-y-auto px-3 sm:px-5 py-4">
+
+      <!-- ═══ FEED SECTION ═══ -->
+      <div id="section-feed">
+        <!-- Stats strip -->
+        <div class="grid grid-cols-4 gap-2 mb-4">
+          <div class="card p-3 text-center"><p class="text-xs text-gray-500">Total</p><p class="font-black text-lg" id="s-total">—</p></div>
+          <div class="card p-3 text-center"><p class="text-xs text-gray-500">Today</p><p class="font-black text-lg" id="s-today">—</p></div>
+          <div class="card p-3 text-center"><p class="text-xs text-gray-500">Min</p><p class="font-black text-lg" id="s-mins">—</p></div>
+          <div class="card p-3 text-center"><p class="text-xs text-gray-500">Sources</p>
+            <div class="flex justify-center gap-1 mt-1 flex-wrap">
+              <span class="badge-tg" id="s-tg">0</span>
+              <span class="badge-wa" id="s-wa">0</span>
+              <span class="badge-qr" id="s-qr">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="flex flex-wrap gap-2 mb-4">
+          <!-- Source -->
+          <div class="flex gap-1.5 flex-wrap">
+            <button class="filter-chip active" onclick="setSourceFilter('all',this)">All</button>
+            <button class="filter-chip" onclick="setSourceFilter('whatsapp_voice',this)">Voice</button>
+            <button class="filter-chip" onclick="setSourceFilter('whatsapp_text',this)">Text</button>
+            <button class="filter-chip" onclick="setSourceFilter('telegram',this)">Telegram</button>
+          </div>
+          <!-- Date -->
+          <div class="flex gap-1.5 flex-wrap ml-auto">
+            <button class="filter-chip" onclick="setDateFilter('today',this)">Today</button>
+            <button class="filter-chip" onclick="setDateFilter('week',this)">This week</button>
+            <button class="filter-chip active" onclick="setDateFilter('all',this)">All time</button>
+          </div>
+        </div>
+
+        <!-- Transcription feed -->
+        <div id="tx-feed" class="flex flex-col gap-3">
+          <div class="text-center text-gray-500 py-12 text-sm">Loading...</div>
+        </div>
+        <div class="text-center mt-4">
+          <button onclick="loadMore()" id="load-more-btn" class="hidden glass border border-white/10 hover:border-[#34d399]/30 px-6 py-2.5 rounded-xl text-sm transition-all">Load more</button>
+        </div>
+      </div>
+
+      <!-- ═══ QR SECTION ═══ -->
+      <div id="section-qr" class="hidden">
+        <h2 class="font-bold text-base mb-4">📱 WhatsApp QR Connection</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+          <div class="card p-4">
+            <p class="text-sm font-semibold mb-3 text-[#34d399]">Scan with WhatsApp</p>
+            <div id="qr-container" class="flex items-center justify-center bg-white rounded-xl p-3 min-h-44">
+              <p class="text-gray-700 text-sm">Loading...</p>
+            </div>
+            <p class="text-xs text-gray-500 mt-2 text-center">WhatsApp → Devices → Link a device</p>
+            <button onclick="loadQR()" class="w-full mt-2 glass border border-white/10 hover:border-[#34d399]/30 py-2 rounded-xl text-xs transition-all">🔄 Refresh</button>
+          </div>
+          <div class="card p-4">
+            <p class="text-sm font-semibold mb-3">Status</p>
+            <div id="qr-status-area">
+              <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-yellow-400"></div><span class="text-sm text-gray-400">Checking...</span></div>
+            </div>
+            <div class="mt-4 bg-white/3 rounded-xl p-3">
+              <p class="text-xs text-gray-500 leading-relaxed">When connected, all voice notes from your WhatsApp groups are captured and transcribed automatically.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ STATS SECTION ═══ -->
+      <div id="section-stats" class="hidden">
+        <h2 class="font-bold text-base mb-4">📊 Debug Stats</h2>
+        <div class="card p-4 max-w-lg">
+          <pre id="stats-raw" class="text-xs text-gray-400 bg-white/3 rounded-xl p-3 overflow-auto max-h-80">Loading...</pre>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div>
+
+<!-- ══════════════════════════════════════════════
+     HIDDEN PDF TEMPLATE (rendered off-screen)
+══════════════════════════════════════════════ -->
+<div id="pdf-root" style="display:none"></div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────
+let allRows = [];
+let offset = 0;
+const LIMIT = 40;
+let sourceFilter = 'all';
+let dateFilter = 'all';
+
+// ─── Source helpers ───────────────────────────────────────────────────
+function getSource(r) {
+  if (r.telegram_id) return 'telegram';
+  if (r.from_number) return 'whatsapp_business';
+  return 'whatsapp_qr';
+}
+function badge(r) {
+  const s = getSource(r);
+  if (s === 'telegram') return '<span class="badge-tg">TG</span>';
+  if (s === 'whatsapp_business') return '<span class="badge-wa">WA Biz</span>';
+  return '<span class="badge-qr">QR</span>';
+}
+function identifier(r) {
+  const s = getSource(r);
+  if (s === 'telegram') return 'Telegram · ' + r.telegram_id;
+  if (s === 'whatsapp_business') return 'WA Business · ' + r.from_number;
+  const id = r.user_identifier || '';
+  return 'WhatsApp QR · ' + id.slice(0,8) + '…';
+}
+
+// ─── Text helpers ─────────────────────────────────────────────────────
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function timeAgo(iso) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff/60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return m + 'm ago';
+  const h = Math.floor(m/60);
+  if (h < 24) return h + 'h ago';
+  const d = Math.floor(h/24);
+  return d + 'd ago';
+}
+function fmtDate(iso) {
+  return new Date(iso).toLocaleString('es-DO', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+function fmtDur(s) {
+  if (!s) return null;
+  const sec = Math.round(s);
+  const m = Math.floor(sec/60), r = sec%60;
+  return m > 0 ? `${m}m ${r}s` : `${r}s`;
+}
+
+// Parse summary into bullet points
+function parseBullets(text) {
+  if (!text) return [];
+  // Split on "* ", "• ", "- " patterns at start of line or after punctuation
+  const lines = text.split(/(?:^|\n)\s*[\*•\-]\s+/m).map(l => l.trim()).filter(l => l.length > 2);
+  if (lines.length <= 1) {
+    // Try splitting on ". * " pattern
+    const alt = text.split(/\.\s*\*\s+/).map(l => l.replace(/^\*\s*/,'').trim()).filter(l => l.length > 2);
+    if (alt.length > 1) return alt;
+    return [text.replace(/^\*\s*/,'').trim()];
+  }
+  return lines;
+}
+
+// ─── Render a single card ─────────────────────────────────────────────
+function renderCard(row, idx) {
+  const dur = fmtDur(row.duration_seconds);
+  const text = (row.transcription || '').trim();
+  const bullets = parseBullets(row.summary);
+  const cardId = 'card-' + idx;
+
+  return `<div class="tx-card" id="${cardId}">
+    <!-- Header -->
+    <div class="flex items-center justify-between gap-2 px-4 pt-3.5 pb-2.5 border-b border-white/5 flex-wrap">
+      <div class="flex items-center gap-2 flex-wrap">
+        ${badge(row)}
+        <span class="text-xs text-gray-500">${esc(identifier(row))}</span>
+        ${dur ? `<span class="text-xs bg-white/5 text-gray-500 px-2 py-0.5 rounded-md">🎤 ${dur}</span>` : ''}
+      </div>
+      <span class="text-xs text-gray-600">${timeAgo(row.created_at)}</span>
+    </div>
+    <!-- Bullets (summary) -->
+    ${bullets.length ? `<div class="px-4 pt-3 pb-2.5 border-b border-white/5 bg-amber-950/10">
+      <p class="text-xs font-semibold text-amber-400 mb-2 flex items-center gap-1.5">⚡ Key points</p>
+      <ul class="flex flex-col gap-1.5">
+        ${bullets.map(b => `<li class="bullet-item"><span class="bullet-dot"></span><span>${esc(b)}</span></li>`).join('')}
+      </ul>
+    </div>` : ''}
+    <!-- Transcript -->
+    <div class="px-4 pt-3 pb-4">
+      <p class="tx-body text-sm text-gray-300 leading-relaxed" id="tx-body-${idx}">${esc(text)}</p>
+      ${text.length > 180 ? `<button onclick="toggleExpand(${idx})" id="tx-toggle-${idx}" class="mt-2 text-xs text-[#34d399] hover:text-[#6ee7b7] transition-colors">▼ Show full transcript</button>` : ''}
+    </div>
+  </div>`;
+}
+
+function toggleExpand(idx) {
+  const body = document.getElementById('tx-body-' + idx);
+  const btn = document.getElementById('tx-toggle-' + idx);
+  if (body.classList.contains('expanded')) {
+    body.classList.remove('expanded');
+    btn.textContent = '▼ Show full transcript';
+  } else {
+    body.classList.add('expanded');
+    btn.textContent = '▲ Collapse';
+  }
+}
+
+// ─── Filter helpers ───────────────────────────────────────────────────
+function filteredRows() {
+  return allRows.filter(r => {
+    if (sourceFilter !== 'all' && (r.source || '') !== sourceFilter) return false;
+    if (dateFilter === 'today') {
+      const today = new Date().toISOString().slice(0,10);
+      if (!r.created_at.startsWith(today)) return false;
+    } else if (dateFilter === 'week') {
+      const week = Date.now() - 7 * 86400000;
+      if (new Date(r.created_at).getTime() < week) return false;
+    }
+    return true;
+  });
+}
+
+function renderFeed() {
+  const rows = filteredRows();
+  const el = document.getElementById('tx-feed');
+  if (!rows.length) {
+    el.innerHTML = '<div class="text-center text-gray-500 py-12 text-sm">No transcriptions found</div>';
+    return;
+  }
+  el.innerHTML = rows.map((r, i) => renderCard(r, i)).join('');
+}
+
+function setSourceFilter(src, btn) {
+  sourceFilter = src;
+  document.querySelectorAll('.filter-chip').forEach(b => {
+    if (['All','TG','WA Biz','QR'].includes(b.textContent)) {
+      b.classList.remove('active');
+    }
+  });
+  btn.classList.add('active');
+  renderFeed();
+}
+
+function setDateFilter(df, btn) {
+  dateFilter = df;
+  ['Today','This week','All time'].forEach(label => {
+    document.querySelectorAll('.filter-chip').forEach(b => {
+      if (b.textContent.trim() === label) b.classList.remove('active');
+    });
+  });
+  btn.classList.add('active');
+  renderFeed();
+}
+
+// ─── Data loading ─────────────────────────────────────────────────────
+async function loadTranscriptions(reset = true) {
+  if (reset) { offset = 0; allRows = []; }
+  const search = document.getElementById('search-input').value.trim();
+  let url = `/api/transcriptions?limit=${LIMIT}&offset=${offset}`;
+  if (search) url += `&q=${encodeURIComponent(search)}`;
+  try {
+    const r = await fetch(url);
+    if (r.status === 401) { window.location.href = '/login'; return; }
+    const json = await r.json();
+    if (reset) allRows = json.rows || [];
+    else allRows = allRows.concat(json.rows || []);
+    offset += (json.rows || []).length;
+    renderFeed();
+    document.getElementById('load-more-btn').classList.toggle('hidden', (json.rows || []).length < LIMIT);
+  } catch(e) {
+    document.getElementById('tx-feed').innerHTML = `<div class="text-center text-red-400 py-8 text-sm">Error: ${esc(e.message)}</div>`;
+  }
+}
+
+async function loadStats() {
+  try {
+    const r = await fetch('/api/stats');
+    if (r.status === 401) return;
+    const s = await r.json();
+    document.getElementById('s-total').textContent = s.total || 0;
+    document.getElementById('s-today').textContent = s.today || 0;
+    document.getElementById('s-mins').textContent = (s.totalMinutes || 0).toFixed(0);
+    document.getElementById('s-tg').textContent = s.sources?.telegram || 0;
+    document.getElementById('s-wa').textContent = s.sources?.whatsapp_business || 0;
+    document.getElementById('s-qr').textContent = s.sources?.whatsapp_qr || 0;
+    document.getElementById('sidebar-summary').textContent = `${s.total} total · ${s.today} today`;
+    document.getElementById('stats-raw').textContent = JSON.stringify(s, null, 2);
+  } catch {}
+}
+
+function loadMore() { loadTranscriptions(false); }
+function applyFilters(reset) { loadTranscriptions(reset === true); }
+
+// ─── QR ───────────────────────────────────────────────────────────────
+async function loadQR() {
+  const c = document.getElementById('qr-container');
+  c.innerHTML = '<p class="text-gray-700 text-sm">Loading...</p>';
+  const img = new Image();
+  img.onload = () => { c.innerHTML = ''; img.className = 'w-full max-w-xs'; c.appendChild(img); };
+  img.onerror = () => {
+    c.innerHTML = '<div class="text-center py-4"><p class="text-gray-600 text-sm">Already connected</p><p class="text-xs text-gray-700 mt-1">or service restarting</p></div>';
+    document.getElementById('qr-status-area').innerHTML = '<div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-[#34d399]"></div><span class="text-sm text-gray-300">Likely connected ✓</span></div>';
+  };
+  img.src = '/api/qr?t=' + Date.now();
+}
+
+// ─── PDF Export ───────────────────────────────────────────────────────
+function exportPDF() {
+  const rows = filteredRows();
+  if (!rows.length) { alert('No transcriptions to export'); return; }
+
+  const filterLabel = (() => {
+    const src = sourceFilter === 'all' ? 'All sources' : sourceFilter === 'telegram' ? 'Telegram' : sourceFilter === 'whatsapp_business' ? 'WhatsApp Business' : 'WhatsApp QR';
+    const dt = dateFilter === 'today' ? 'Today' : dateFilter === 'week' ? 'This week' : 'All time';
+    return src + ' · ' + dt;
+  })();
+
+  const pdfHtml = `<!DOCTYPE html><html><head>
+<meta charset="UTF-8"/>
+<title>Rewa Transcriptions — ${new Date().toLocaleDateString()}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Georgia',serif;background:#fff;color:#111;padding:32px;font-size:12px;max-width:800px;margin:0 auto}
+.header{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:2px solid #10b981;padding-bottom:14px;margin-bottom:22px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:36px;height:36px;border-radius:9px;background:#10b981;display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:18px;flex-shrink:0;line-height:36px;text-align:center}
+.logo-text{font-size:20px;font-weight:900;letter-spacing:-0.5px}
+.logo-sub{font-size:10px;color:#6b7280;margin-top:1px}
+.meta{text-align:right;font-size:10px;color:#6b7280;line-height:1.8}
+.meta strong{color:#374151;display:block;font-size:11px}
+.card{border:1px solid #e5e7eb;border-radius:10px;margin-bottom:14px;overflow:hidden;break-inside:avoid}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:#f9fafb;border-bottom:1px solid #e5e7eb;flex-wrap:wrap;gap:6px}
+.badge-tg{background:#e0f7fa;color:#0e7490;border:1px solid #67e8f9;border-radius:4px;padding:2px 7px;font-size:9px;font-weight:700;font-family:sans-serif}
+.badge-wa{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;border-radius:4px;padding:2px 7px;font-size:9px;font-weight:700;font-family:sans-serif}
+.badge-qr{background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd;border-radius:4px;padding:2px 7px;font-size:9px;font-weight:700;font-family:sans-serif}
+.card-id{font-size:10px;color:#6b7280;font-family:sans-serif}
+.card-ts{font-size:10px;color:#9ca3af;font-family:sans-serif}
+.bullets{padding:10px 14px;background:#fffbeb;border-bottom:1px solid #fde68a}
+.bullets-label{font-size:10px;font-weight:700;color:#92400e;margin-bottom:6px;font-family:sans-serif}
+.bullet{display:flex;gap:6px;align-items:flex-start;font-size:11px;color:#92400e;margin-bottom:3px;font-family:sans-serif;line-height:1.5}
+.bullet-dot{width:4px;height:4px;border-radius:50%;background:#d97706;flex-shrink:0;margin-top:4px}
+.tx-text{padding:11px 14px;font-size:12px;line-height:1.8;color:#374151;font-family:'Georgia',serif}
+.footer{margin-top:28px;border-top:1px solid #e5e7eb;padding-top:10px;display:flex;justify-content:space-between;font-size:9px;color:#9ca3af;font-family:sans-serif}
+@media print{body{padding:20px}@page{margin:15mm}}
+</style></head><body>
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">R</div>
+    <div><div class="logo-text">Rewa</div><div class="logo-sub">AI Transcription Report</div></div>
+  </div>
+  <div class="meta">
+    <strong>Transcription Export</strong>
+    Filter: ${esc(filterLabel)}<br/>
+    Records: ${rows.length}<br/>
+    Generated: ${new Date().toLocaleString()}
+  </div>
+</div>
+
+${rows.map(row => {
+  const src = getSource(row);
+  const badgeCls = src === 'telegram' ? 'badge-tg' : src === 'whatsapp_business' ? 'badge-wa' : 'badge-qr';
+  const badgeTxt = src === 'telegram' ? 'TG' : src === 'whatsapp_business' ? 'WA Biz' : 'QR';
+  const bullets = parseBullets(row.summary);
+  const dur = fmtDur(row.duration_seconds);
+  return `<div class="card">
+    <div class="card-head">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="${badgeCls}">${badgeTxt}</span>
+        <span class="card-id">${esc(identifier(row))}${dur ? ' · 🎤 ' + dur : ''}</span>
+      </div>
+      <span class="card-ts">${fmtDate(row.created_at)}</span>
+    </div>
+    ${bullets.length ? `<div class="bullets"><div class="bullets-label">⚡ Key points</div>${bullets.map(b=>`<div class="bullet"><div class="bullet-dot"></div><span>${esc(b)}</span></div>`).join('')}</div>` : ''}
+    <div class="tx-text">${esc((row.transcription||'').trim())}</div>
+  </div>`;
+}).join('')}
+
+<div class="footer">
+  <span>Rewa — AI Memory for WhatsApp · rewa.app</span>
+  <span>Generated ${new Date().toLocaleDateString()} · ${rows.length} records</span>
+</div>
+</body></html>`;
+
+  const win = window.open('', '_blank', 'width=900,height=700');
+  win.document.write(pdfHtml);
+  win.document.close();
+  win.focus();
+  setTimeout(() => win.print(), 600);
+}
+
+// ─── Section navigation ───────────────────────────────────────────────
+function showSection(name) {
+  ['feed','qr','stats'].forEach(s => {
+    document.getElementById('section-' + s).classList.toggle('hidden', s !== name);
+    const nav = document.getElementById('nav-' + s);
+    if (nav) nav.classList.toggle('active', s === name);
+  });
+  if (name === 'qr') loadQR();
+}
+
+function toggleMobileMenu() {
+  document.getElementById('mobile-menu').classList.toggle('hidden');
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────
+loadTranscriptions();
+loadStats();
+setInterval(loadStats, 30000);
+setInterval(() => loadTranscriptions(true), 90000);
+</script>
+</body>
+</html>
