@@ -53,6 +53,7 @@ body{overflow-x:hidden}
     </div>
     <nav class="flex flex-col gap-0.5 flex-1">
       <div class="nav-item active" onclick="showSection('feed')" id="nav-feed">🎤 Feed</div>
+      <div class="nav-item" onclick="showSection('search')" id="nav-search">🧠 AI Search</div>
       <div class="nav-item" onclick="showSection('qr')" id="nav-qr">📱 WhatsApp QR</div>
       <div class="nav-item" onclick="showSection('stats')" id="nav-stats">📊 Stats</div>
       <div class="flex-1"></div>
@@ -108,6 +109,7 @@ body{overflow-x:hidden}
     <!-- Mobile menu -->
     <div id="mobile-menu" class="no-print hidden md:hidden bg-[#070e1c] border-b border-white/5 px-3 py-2 flex flex-wrap gap-1.5">
       <div class="nav-item text-xs" onclick="showSection('feed');toggleMobileMenu()">🎤 Feed</div>
+      <div class="nav-item text-xs" onclick="showSection('search');toggleMobileMenu()">🧠 AI</div>
       <div class="nav-item text-xs" onclick="showSection('qr');toggleMobileMenu()">📱 QR</div>
       <div class="nav-item text-xs" onclick="showSection('stats');toggleMobileMenu()">📊 Stats</div>
       <div class="nav-item text-xs" onclick="exportPDF()">📄 PDF</div>
@@ -156,6 +158,61 @@ body{overflow-x:hidden}
         </div>
         <div class="text-center mt-4">
           <button onclick="loadMore()" id="load-more-btn" class="hidden glass border border-white/10 hover:border-[#34d399]/30 px-6 py-2.5 rounded-xl text-sm transition-all">Load more</button>
+        </div>
+      </div>
+
+      <!-- ═══ AI SEARCH SECTION ═══ -->
+      <div id="section-search" class="hidden">
+        <div class="mb-5">
+          <h2 class="font-bold text-base mb-1">🧠 AI Search</h2>
+          <p class="text-xs text-gray-500">Ask anything about your transcriptions. Searches semantically + by keyword, then synthesizes an answer.</p>
+        </div>
+        <!-- Search bar -->
+        <div class="flex gap-2 mb-5">
+          <div class="flex-1 flex items-center gap-2 bg-white/5 border border-white/10 focus-within:border-[#10b981]/50 rounded-xl px-4 py-3 transition-colors">
+            <span class="text-base">🔍</span>
+            <input type="text" id="ai-query" placeholder='e.g. "what did we decide about the cement price?"'
+              class="bg-transparent text-sm text-gray-200 placeholder-gray-600 outline-none w-full"
+              onkeydown="if(event.key==='Enter')doAiSearch()"/>
+          </div>
+          <button onclick="doAiSearch()" id="ai-search-btn"
+            class="bg-[#10b981] hover:bg-[#34d399] text-black font-bold px-5 py-3 rounded-xl transition-all text-sm flex-shrink-0">
+            Ask
+          </button>
+        </div>
+        <!-- Quick queries -->
+        <div class="flex flex-wrap gap-2 mb-6">
+          <span class="text-xs text-gray-600 self-center">Try:</span>
+          <button onclick="quickSearch(this)" class="text-xs glass border border-white/8 px-3 py-1.5 rounded-lg hover:border-[#34d399]/30 transition-all">What decisions were made today?</button>
+          <button onclick="quickSearch(this)" class="text-xs glass border border-white/8 px-3 py-1.5 rounded-lg hover:border-[#34d399]/30 transition-all">Show me urgent issues</button>
+          <button onclick="quickSearch(this)" class="text-xs glass border border-white/8 px-3 py-1.5 rounded-lg hover:border-[#34d399]/30 transition-all">What was discussed about prices?</button>
+          <button onclick="quickSearch(this)" class="text-xs glass border border-white/8 px-3 py-1.5 rounded-lg hover:border-[#34d399]/30 transition-all">Any meetings scheduled?</button>
+        </div>
+        <!-- Loading -->
+        <div id="ai-loading" class="hidden text-center py-10">
+          <div class="inline-flex items-center gap-3 text-[#34d399]">
+            <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+            <span class="text-sm">Searching & synthesizing answer…</span>
+          </div>
+        </div>
+        <!-- Answer card -->
+        <div id="ai-answer-card" class="hidden">
+          <div class="bg-[#34d399]/6 border border-[#34d399]/20 rounded-2xl p-5 mb-4">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-6 h-6 rounded-lg bg-[#10b981] flex items-center justify-center flex-shrink-0"><span class="text-black text-xs font-bold">R</span></div>
+              <span class="text-[#34d399] text-sm font-semibold">Rewa AI</span>
+              <span id="ai-mode-badge" class="text-xs text-gray-600 ml-auto"></span>
+            </div>
+            <p id="ai-answer-text" class="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap"></p>
+          </div>
+          <!-- Sources -->
+          <div id="ai-sources-list" class="flex flex-col gap-2"></div>
+        </div>
+        <!-- Empty state -->
+        <div id="ai-empty" class="text-center py-16">
+          <p class="text-4xl mb-3">🧠</p>
+          <p class="text-gray-500 text-sm">Ask a question to search across all your transcriptions</p>
+          <p class="text-gray-600 text-xs mt-2">Uses semantic vector search + keyword matching + AI synthesis</p>
         </div>
       </div>
 
@@ -602,9 +659,61 @@ function exportPDFDark(rows) {
   setTimeout(() => win.print(), 700);
 }
 
+// ─── AI Search ────────────────────────────────────────────────────────
+async function doAiSearch() {
+  const q = document.getElementById('ai-query').value.trim();
+  if (!q) return;
+  const btn = document.getElementById('ai-search-btn');
+  btn.disabled = true; btn.textContent = '…';
+  document.getElementById('ai-loading').classList.remove('hidden');
+  document.getElementById('ai-answer-card').classList.add('hidden');
+  document.getElementById('ai-empty').classList.add('hidden');
+
+  try {
+    const r = await fetch('/api/ai-search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ q }),
+    });
+    if (r.status === 401) { window.location.href = '/login'; return; }
+    const data = await r.json();
+
+    document.getElementById('ai-loading').classList.add('hidden');
+    document.getElementById('ai-answer-card').classList.remove('hidden');
+    document.getElementById('ai-answer-text').textContent = data.answer || 'No answer available.';
+    document.getElementById('ai-mode-badge').textContent = data.mode ? '(' + data.mode + ')' : '';
+
+    const srcEl = document.getElementById('ai-sources-list');
+    if (data.sources?.length) {
+      srcEl.innerHTML = '<p class="text-xs text-gray-500 mb-2 font-semibold">Sources (' + data.sources.length + ')</p>' +
+        data.sources.map((s, i) => `<div class="glass p-3 rounded-xl">
+          <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span class="text-xs font-bold text-[#34d399]">[${i+1}]</span>
+            ${badge({source: s.source})}
+            <span class="text-xs text-gray-500">${esc(s.sender_name || 'Unknown')}${s.chat_name ? ' in ' + esc(s.chat_name) : ''}</span>
+            <span class="text-xs text-gray-600 ml-auto">${timeAgo(s.created_at)}</span>
+          </div>
+          <p class="text-xs text-gray-400 leading-relaxed">${esc((s.text || '').slice(0, 200))}${(s.text||'').length > 200 ? '…' : ''}</p>
+        </div>`).join('');
+    } else {
+      srcEl.innerHTML = '';
+    }
+  } catch(e) {
+    document.getElementById('ai-loading').classList.add('hidden');
+    document.getElementById('ai-empty').classList.remove('hidden');
+    document.getElementById('ai-empty').innerHTML = '<p class="text-red-400 text-sm">Error: ' + esc(e.message) + '</p>';
+  }
+  btn.disabled = false; btn.textContent = 'Ask';
+}
+
+function quickSearch(btn) {
+  document.getElementById('ai-query').value = btn.textContent.trim();
+  doAiSearch();
+}
+
 // ─── Section navigation ───────────────────────────────────────────────
 function showSection(name) {
-  ['feed','qr','stats'].forEach(s => {
+  ['feed','search','qr','stats'].forEach(s => {
     document.getElementById('section-' + s).classList.toggle('hidden', s !== name);
     const nav = document.getElementById('nav-' + s);
     if (nav) nav.classList.toggle('active', s === name);
