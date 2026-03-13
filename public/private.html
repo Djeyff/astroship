@@ -102,6 +102,18 @@ body{overflow-x:hidden}
         <span class="text-xs text-gray-400">Show translation</span>
         <div class="toggle-btn" id="toggle-translation" onclick="toggleTranslation(this)"></div>
       </div>
+      <div class="mt-2">
+        <p class="text-xs text-gray-500 mb-1">Translate to:</p>
+        <select id="translate-lang" onchange="settings.translateLang=this.value" class="w-full text-xs bg-[#0a1422] border border-white/10 text-gray-300 rounded-lg px-2 py-1.5 outline-none">
+          <option value="English">🇬🇧 English</option>
+          <option value="Spanish">🇪🇸 Spanish</option>
+          <option value="French">🇫🇷 French</option>
+          <option value="Portuguese">🇧🇷 Portuguese</option>
+          <option value="German">🇩🇪 German</option>
+          <option value="Italian">🇮🇹 Italian</option>
+          <option value="Arabic">🇸🇦 Arabic</option>
+        </select>
+      </div>
       <div class="mt-3 pt-3 border-t border-white/6">
         <button onclick="exportPDF()" class="w-full text-xs bg-[#10b981]/10 hover:bg-[#10b981]/20 border border-[#10b981]/20 text-[#34d399] py-2 rounded-xl transition-all">📄 Export PDF</button>
       </div>
@@ -269,6 +281,7 @@ let settings = {
   darkPdf: false,
   formatParagraphs: true,
   showTranslation: false,
+  translateLang: 'English',
 };
 
 // ─── Settings ─────────────────────────────────────────────────────────
@@ -278,6 +291,34 @@ function toggleSettings() {
 function toggleDarkPdf(btn) { btn.classList.toggle('on'); settings.darkPdf = btn.classList.contains('on'); }
 function toggleParas(btn) { btn.classList.toggle('on'); settings.formatParagraphs = btn.classList.contains('on'); renderFeed(); }
 function toggleTranslation(btn) { btn.classList.toggle('on'); settings.showTranslation = btn.classList.contains('on'); renderFeed(); }
+
+async function translateCard(idx) {
+  const row = allRows[idx];
+  if (!row || !row.text) return;
+  const statusEl = document.getElementById('tx-translate-status-' + idx);
+  const resultEl = document.getElementById('tx-translation-' + idx);
+  const textEl = document.getElementById('tx-translation-text-' + idx);
+  const langEl = document.getElementById('tx-translation-lang-' + idx);
+  if (statusEl) statusEl.textContent = 'Translating…';
+  try {
+    const r = await fetch('/api/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: row.text, targetLang: settings.translateLang }),
+    });
+    const data = await r.json();
+    if (data.translation) {
+      if (textEl) textEl.textContent = data.translation;
+      if (langEl) langEl.textContent = settings.translateLang;
+      if (resultEl) resultEl.classList.remove('hidden');
+      if (statusEl) statusEl.textContent = '';
+    } else {
+      if (statusEl) statusEl.textContent = data.error || 'Failed';
+    }
+  } catch(e) {
+    if (statusEl) statusEl.textContent = 'Error';
+  }
+}
 document.addEventListener('click', e => {
   const panel = document.getElementById('settings-panel');
   if (!panel.classList.contains('hidden') && !e.target.closest('#settings-panel') && !e.target.closest('[onclick*=toggleSettings]')) {
@@ -415,6 +456,14 @@ function renderCard(row, idx) {
       <div class="tx-body text-sm text-gray-300 leading-relaxed" id="tx-body-${idx}">${formatTranscript(text)}</div>
       ${text.length > 280 ? `<button onclick="toggleExpand(${idx})" id="tx-toggle-${idx}" class="mt-2 text-xs text-[#34d399] hover:text-[#6ee7b7] transition-colors">▼ Show all</button>` : ''}
       ${settings.showTranslation && row.translation ? `<div class="mt-3 bg-indigo-950/30 border border-indigo-500/15 rounded-xl px-3 py-2.5"><p class="text-xs font-semibold text-indigo-300 mb-1">🌐 Translation</p><p class="text-xs text-indigo-200 leading-relaxed">${esc(row.translation)}</p></div>` : ''}
+      <div class="mt-2 flex items-center gap-2" id="tx-translate-bar-${idx}">
+        <button onclick="translateCard(${idx})" class="text-xs text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1">🌐 Translate</button>
+        <span id="tx-translate-status-${idx}" class="text-xs text-gray-600"></span>
+      </div>
+      <div id="tx-translation-${idx}" class="hidden mt-2 bg-indigo-950/30 border border-indigo-500/15 rounded-xl px-3 py-2.5">
+        <p class="text-xs font-semibold text-indigo-300 mb-1">🌐 <span id="tx-translation-lang-${idx}">Translation</span></p>
+        <p class="text-xs text-indigo-200 leading-relaxed" id="tx-translation-text-${idx}"></p>
+      </div>
     </div>
   </div>`;
 }

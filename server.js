@@ -207,18 +207,8 @@ http.createServer(async (req, res) => {
 
       try {
         const r = await supaFetch(endpoint);
-        let rows = (r.data || []).map(row => ({
-          id: row.id,
-          text: row.transcription || '',
-          summary: row.summary || null,
-          translation: null,
-          language: row.language || null,
-          source: row.telegram_id ? 'telegram' : row.from_number ? 'whatsapp' : 'chrome',
-          sender_name: row.user_identifier || (row.from_number ? row.from_number : null) || (row.telegram_id ? String(row.telegram_id) : null) || 'Unknown',
-          chat_name: null,
-          duration_seconds: row.duration_seconds || (row.audio_duration_minutes ? Math.round(row.audio_duration_minutes * 60) : null),
-          created_at: row.created_at,
-        }));
+        const contactMap = await buildContactMap();
+        let rows = (r.data || []).map(row => vtRowToUnified(row, contactMap));
 
         // Source filter
         if (source && source !== 'all') {
@@ -276,31 +266,34 @@ http.createServer(async (req, res) => {
       if (!question) { sendJson(res, 400, { error: 'Missing q' }); return; }
 
       try {
-        // Step 1: Try vector search first (if embeddings available)
+        // Load contact map for sender name resolution
+        const contactMap = await buildContactMap();
+
+        // Step 1: Try vector search (if embeddings available in vozclara_transcriptions)
         let vectorRows = [];
         const queryEmbedding = await getEmbedding(question);
         if (queryEmbedding) {
-          const vecResults = await supaRpc('match_transcriptions', {
+          const vecResults = await supaRpc('match_vt', {
             query_embedding: queryEmbedding,
             match_count: 8,
             min_similarity: 0.3,
           });
           if (Array.isArray(vecResults) && vecResults.length) {
-            vectorRows = vecResults.map(decryptRow).filter(r => r.text && r.text !== '[encrypted — key mismatch]');
+            vectorRows = vecResults.map(r => vtRowToUnified(r, contactMap));
           }
         }
 
-        // Step 2: Keyword fallback (always run, merge results)
-        const terms = question.toLowerCase().split(/\s+/).filter(t => t.length > 3);
-        const allR = await supaFetch('/rest/v1/transcriptions?select=id,source,sender_name,chat_name,duration_seconds,language,text_encrypted,summary_encrypted,encryption_iv,encryption_tag,audio_url,created_at&order=created_at.desc&limit=200');
-        const decryptedAll = (allR.data || []).map(decryptRow).filter(r => r.text && r.text !== '[encrypted — key mismatch]');
-        const keywordRows = decryptedAll
+        // Step 2: Keyword search on vozclara_transcriptions (plaintext)
+        const terms = question.toLowerCase().split(/\s+/).filter(t => t.length > 2);
+        const allR = await supaFetch('/rest/v1/vozclara_transcriptions?select=id,transcription,summary,language,telegram_id,from_number,user_identifier,created_at,duration_seconds,audio_duration_minutes&order=created_at.desc&limit=300');
+        const allRows = (allR.data || []).map(r => vtRowToUnified(r, contactMap));
+        const keywordRows = allRows
           .map(r => ({ ...r, _score: keywordScore(r, terms) }))
           .filter(r => r._score > 0)
           .sort((a, b) => b._score - a._score)
           .slice(0, 8);
 
-        // Merge: vector results first (higher quality), then keyword, dedup by id
+        // Merge: vector first, then keyword, dedup by id
         const seen = new Set();
         const combined = [...vectorRows, ...keywordRows].filter(r => {
           if (seen.has(r.id)) return false;
@@ -326,6 +319,30 @@ http.createServer(async (req, res) => {
       } catch(e) {
         sendJson(res, 500, { error: e.message });
       }
+      return;
+    }
+
+
+    // Translate a transcription via Groq
+    if (pathname === '/api/translate' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const { text, targetLang } = body;
+      if (!text) { sendJson(res, 400, { error: 'Missing text' }); return; }
+      if (!GROQ_API_KEY) { sendJson(res, 200, { translation: null, error: 'GROQ_API_KEY not configured' }); return; }
+      try {
+        const lang = targetLang || 'English';
+        const r = await httpsPost('api.groq.com', '/openai/v1/chat/completions',
+          { 'Authorization': `Bearer ${GROQ_API_KEY}` },
+          {
+            model: 'llama-3.3-70b-versatile',
+            messages: [{ role: 'user', content: `Translate the following text to ${lang}. Return ONLY the translation, no explanations or prefixes:\n\n${text.slice(0, 3000)}` }],
+            temperature: 0.1,
+            max_tokens: 1000,
+          }
+        );
+        const translation = r.status === 200 ? r.body?.choices?.[0]?.message?.content?.trim() : null;
+        sendJson(res, 200, { translation });
+      } catch(e) { sendJson(res, 500, { error: e.message }); }
       return;
     }
 
@@ -494,12 +511,12 @@ function supaRpc(fnName, params) {
 }
 
 // Store embedding back to DB
-function saveEmbedding(id, embedding) {
+function saveEmbedding(id, embedding, table) {
   if (!embedding || !id) return;
+  const tbl = table || 'vozclara_transcriptions';
   const vecStr = '[' + embedding.join(',') + ']';
-  supaFetch(`/rest/v1/transcriptions?id=eq.${id}`).catch(() => {});
   // Use PATCH via HTTPS
-  const u = new URL(SUPABASE_URL + `/rest/v1/transcriptions?id=eq.${id}`);
+  const u = new URL(SUPABASE_URL + `/rest/v1/${tbl}?id=eq.${id}`);
   const body = JSON.stringify({ embedding: vecStr });
   const opts = {
     hostname: u.hostname,
@@ -520,22 +537,58 @@ function saveEmbedding(id, embedding) {
 
 // Embed unindexed rows in background (call once on startup + periodically)
 let indexingInProgress = false;
+// Build contact name lookup map from vozclara_users
+let contactMapCache = null;
+let contactMapTs = 0;
+async function buildContactMap() {
+  if (contactMapCache && Date.now() - contactMapTs < 5 * 60 * 1000) return contactMapCache;
+  try {
+    const r = await supaFetch('/rest/v1/vozclara_users?select=phone_number,display_name,telegram_id,first_name,username');
+    const map = {};
+    (r.data || []).forEach(u => {
+      const name = u.display_name || u.first_name || u.username || null;
+      if (name && u.phone_number) map[u.phone_number] = name;
+      if (name && u.telegram_id) map[String(u.telegram_id)] = name;
+    });
+    contactMapCache = map;
+    contactMapTs = Date.now();
+    return map;
+  } catch(e) { return {}; }
+}
+
+// Convert vozclara_transcriptions row to unified format
+function vtRowToUnified(row, contactMap) {
+  const cm = contactMap || {};
+  const telegramName = row.telegram_id ? (cm[String(row.telegram_id)] || null) : null;
+  const phoneName = row.from_number ? (cm[row.from_number] || null) : null;
+  const senderName = telegramName || phoneName || row.user_identifier || null;
+  return {
+    id: row.id,
+    text: row.transcription || '',
+    summary: row.summary || null,
+    language: row.language || null,
+    source: row.telegram_id ? 'telegram' : row.from_number ? 'whatsapp' : 'chrome',
+    sender_name: senderName,
+    chat_name: null,
+    duration_seconds: row.duration_seconds || (row.audio_duration_minutes ? Math.round(row.audio_duration_minutes * 60) : null),
+    created_at: row.created_at,
+  };
+}
+
 async function indexUnembedded() {
   if (indexingInProgress || !JINA_API_KEY) return;
   indexingInProgress = true;
   try {
-    // Fetch rows without embeddings
-    const r = await supaFetch('/rest/v1/transcriptions?select=id,text_encrypted,encryption_iv,encryption_tag&embedding=is.null&limit=20');
-    const rows = r.data || [];
+    // Fetch plaintext rows without embeddings from vozclara_transcriptions
+    const r = await supaFetch('/rest/v1/vozclara_transcriptions?select=id,transcription&embedding=is.null&limit=20');
+    const rows = (r.data || []).filter(row => row.transcription);
     if (!rows.length) { indexingInProgress = false; return; }
-    console.log(`[Index] Embedding ${rows.length} rows…`);
+    console.log(`[Index] Embedding ${rows.length} rows from vozclara_transcriptions…`);
     for (const row of rows) {
-      const decrypted = decryptField(row.text_encrypted, row.encryption_iv, row.encryption_tag, OWNER_PHONE);
-      if (!decrypted) continue;
-      const embedding = await getEmbedding(decrypted);
+      const embedding = await getEmbedding(row.transcription);
       if (embedding) {
-        saveEmbedding(row.id, embedding);
-        await new Promise(r => setTimeout(r, 100)); // rate limit
+        saveEmbedding(row.id, embedding, 'vozclara_transcriptions');
+        await new Promise(r => setTimeout(r, 100));
       }
     }
   } catch(e) { console.warn('[Index] Error:', e.message); }
