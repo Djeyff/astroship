@@ -271,7 +271,7 @@ http.createServer(async (req, res) => {
         // Step 3: Groq synthesis
         const answer = GROQ_API_KEY
           ? await groqAnswer(question, combined)
-          : \`Found \${combined.length} relevant transcription(s). Enable AI synthesis by adding GROQ_API_KEY to Zeabur env vars.\`;
+          : 'Found ' + combined.length + ' relevant transcription(s). Add GROQ_API_KEY in Zeabur env vars to enable AI synthesis.';
 
         sendJson(res, 200, {
           answer: answer || 'Could not generate answer.',
