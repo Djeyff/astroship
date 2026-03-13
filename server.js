@@ -208,7 +208,7 @@ http.createServer(async (req, res) => {
       try {
         const r = await supaFetch(endpoint);
         const contactMap = await buildContactMap();
-        let rows = (r.data || []).map(row => vtRowToUnified(row, contactMap));
+        let rows = (Array.isArray(r.data) ? r.data : []).map(row => vtRowToUnified(row, contactMap));
 
         // Source filter
         if (source && source !== 'all') {
@@ -584,7 +584,7 @@ async function buildContactMap() {
   try {
     const r = await supaFetch('/rest/v1/vozclara_users?select=phone_number,display_name,telegram_id,first_name,username');
     const map = {};
-    (r.data || []).forEach(u => {
+    (Array.isArray(r.data) ? r.data : []).forEach(u => {
       const name = u.display_name || u.first_name || u.username || null;
       if (name && u.phone_number) map[u.phone_number] = name;
       if (name && u.telegram_id) map[String(u.telegram_id)] = name;
@@ -620,7 +620,7 @@ async function indexUnembedded() {
   try {
     // Fetch plaintext rows without embeddings from vozclara_transcriptions
     const r = await supaFetch('/rest/v1/vozclara_transcriptions?select=id,transcription&embedding=is.null&limit=20');
-    const rows = (r.data || []).filter(row => row.transcription);
+    const rows = (Array.isArray(r.data) ? r.data : []).filter(row => row.transcription);
     if (!rows.length) { indexingInProgress = false; return; }
     console.log(`[Index] Embedding ${rows.length} rows from vozclara_transcriptions…`);
     for (const row of rows) {
