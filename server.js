@@ -283,8 +283,10 @@ http.createServer(async (req, res) => {
           }
         }
 
-        // Step 2: Keyword search on vozclara_transcriptions (plaintext)
-        const terms = question.toLowerCase().split(/\s+/).filter(t => t.length > 2);
+        // Step 2: Expand query with multilingual synonyms (cat → cat, gato, chat, etc.)
+        const expandedTerms = await expandQueryMultilingual(question);
+        const baseTerms = question.toLowerCase().split(/\s+/).filter(t => t.length > 1);
+        const terms = [...new Set([...baseTerms, ...expandedTerms])];
         const allR = await supaFetch('/rest/v1/vozclara_transcriptions?select=id,transcription,summary,language,telegram_id,from_number,user_identifier,created_at,duration_seconds,audio_duration_minutes&order=created_at.desc&limit=300');
         const allRows = (allR.data || []).map(r => vtRowToUnified(r, contactMap));
         const keywordRows = allRows
@@ -443,6 +445,43 @@ async function getEmbedding(text) {
 }
 
 // Ask Groq to synthesize an answer from context transcriptions
+async function expandQueryMultilingual(question) {
+  if (!GROQ_API_KEY) return [];
+  try {
+    const r = await httpsPost('api.groq.com', '/openai/v1/chat/completions',
+      { 'Authorization': `Bearer ${GROQ_API_KEY}` },
+      {
+        model: 'llama-3.3-70b-versatile',
+        messages: [{
+          role: 'user',
+          content: `Given this search query: "${question}"
+
+Extract the key search terms and provide their equivalents in English, Spanish, French, and Portuguese.
+Return ONLY a JSON array of strings with all unique terms/synonyms/translations. No explanation.
+Example for "cat": ["cat","cats","gato","gatos","chat","chats","gato","felino"]
+Example for "meeting tomorrow": ["meeting","meetings","reunion","réunion","reunião","mañana","demain","tomorrow","amanhã"]
+
+Query: "${question}"
+JSON array:`
+        }],
+        temperature: 0.1,
+        max_tokens: 150,
+      }
+    );
+    if (r.status === 200) {
+      const content = r.body?.choices?.[0]?.message?.content?.trim() || '[]';
+      const match = content.match(/\[[\s\S]*\]/);
+      if (match) {
+        const parsed = JSON.parse(match[0]);
+        return parsed.map(t => t.toLowerCase().trim()).filter(t => t.length > 1);
+      }
+    }
+  } catch(e) {
+    console.warn('[expandQuery] Error:', e.message);
+  }
+  return [];
+}
+
 async function groqAnswer(question, contextRows) {
   if (!GROQ_API_KEY) return null;
   const context = contextRows.map((r, i) =>
