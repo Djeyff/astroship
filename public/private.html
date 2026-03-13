@@ -30,20 +30,16 @@ body{overflow-x:hidden}
 .filter-chip{padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#9ca3af;transition:all .2s;white-space:nowrap}
 .filter-chip.active{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34d399}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#1a3a2a;border-radius:3px}
+/* Settings panel */
+.settings-panel{position:fixed;top:60px;right:12px;z-index:100;background:#0d1829;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:16px;width:230px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.toggle{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.toggle:last-child{border-bottom:none}
+.toggle-btn{width:36px;height:20px;border-radius:10px;background:rgba(255,255,255,.12);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.toggle-btn.on{background:#10b981}
+.toggle-btn::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s}
+.toggle-btn.on::after{transform:translateX(16px)}
 /* PDF print styles */
-@media print{
-  .no-print{display:none!important}
-  body{background:#fff!important;color:#111!important}
-  .pdf-page{background:#fff;color:#111;font-family:'Times New Roman',serif}
-  .pdf-header{border-bottom:2px solid #10b981;padding-bottom:12px;margin-bottom:20px}
-  .pdf-card{border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin-bottom:14px;break-inside:avoid}
-  .pdf-badge-tg{background:#e0f7fa;color:#0e7490;border:1px solid #a5f3fc;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700}
-  .pdf-badge-wa{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700}
-  .pdf-badge-qr{background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700}
-  .pdf-tx{font-size:12px;line-height:1.7;color:#374151;margin-top:8px}
-  .pdf-bullet{display:flex;gap:6px;font-size:11px;color:#b45309;margin-top:3px;align-items:flex-start}
-  .pdf-bullet-dot{width:4px;height:4px;border-radius:50%;background:#d97706;flex-shrink:0;margin-top:5px}
-}
+@media print{ .no-print{display:none!important} }
 </style>
 </head>
 <body class="bg-[#050c18] text-white antialiased">
@@ -85,6 +81,27 @@ body{overflow-x:hidden}
           📄 Export PDF
         </button>
         <button onclick="applyFilters(true)" class="text-xs glass border border-white/10 hover:border-white/20 px-3 py-2 rounded-xl transition-all">🔄</button>
+        <button onclick="toggleSettings()" class="text-xs glass border border-white/10 hover:border-[#34d399]/30 px-3 py-2 rounded-xl transition-all">⚙️</button>
+      </div>
+    </div>
+
+    <!-- Settings panel -->
+    <div id="settings-panel" class="settings-panel hidden no-print">
+      <p class="text-xs font-bold text-gray-300 mb-3">⚙️ Settings</p>
+      <div class="toggle">
+        <span class="text-xs text-gray-400">Dark PDF</span>
+        <div class="toggle-btn" id="toggle-dark-pdf" onclick="toggleDarkPdf(this)"></div>
+      </div>
+      <div class="toggle">
+        <span class="text-xs text-gray-400">Format paragraphs</span>
+        <div class="toggle-btn on" id="toggle-paragraphs" onclick="toggleParas(this)"></div>
+      </div>
+      <div class="toggle">
+        <span class="text-xs text-gray-400">Show translation</span>
+        <div class="toggle-btn" id="toggle-translation" onclick="toggleTranslation(this)"></div>
+      </div>
+      <div class="mt-3 pt-3 border-t border-white/6">
+        <button onclick="exportPDF()" class="w-full text-xs bg-[#10b981]/10 hover:bg-[#10b981]/20 border border-[#10b981]/20 text-[#34d399] py-2 rounded-xl transition-all">📄 Export PDF</button>
       </div>
     </div>
 
@@ -190,6 +207,70 @@ let offset = 0;
 const LIMIT = 40;
 let sourceFilter = 'all';
 let dateFilter = 'all';
+let settings = {
+  darkPdf: false,
+  formatParagraphs: true,
+  showTranslation: false,
+};
+
+// ─── Settings ─────────────────────────────────────────────────────────
+function toggleSettings() {
+  document.getElementById('settings-panel').classList.toggle('hidden');
+}
+function toggleDarkPdf(btn) { btn.classList.toggle('on'); settings.darkPdf = btn.classList.contains('on'); }
+function toggleParas(btn) { btn.classList.toggle('on'); settings.formatParagraphs = btn.classList.contains('on'); renderFeed(); }
+function toggleTranslation(btn) { btn.classList.toggle('on'); settings.showTranslation = btn.classList.contains('on'); renderFeed(); }
+document.addEventListener('click', e => {
+  const panel = document.getElementById('settings-panel');
+  if (!panel.classList.contains('hidden') && !e.target.closest('#settings-panel') && !e.target.closest('[onclick*=toggleSettings]')) {
+    panel.classList.add('hidden');
+  }
+});
+
+// ─── Text formatting ───────────────────────────────────────────────────
+function formatTranscript(text) {
+  if (!text) return '';
+  if (!settings.formatParagraphs) return esc(text);
+
+  // Split into sentences respecting Spanish ¿ ¡ and ellipsis
+  const raw = text.trim();
+  // Add line break every ~3 sentences
+  const sentenceRx = /([^.!?…¡¿
+]+[.!?…]+[\s"]*)(?=[A-ZÁÉÍÓÚÀÂÊÎÔÛÄËÏÖÜ¡¿
+]|$)/g;
+  const sentences = [];
+  let m;
+  let last = 0;
+  while ((m = sentenceRx.exec(raw)) !== null) {
+    sentences.push(m[0].trim());
+    last = m.index + m[0].length;
+  }
+  if (last < raw.length) sentences.push(raw.slice(last).trim());
+  if (sentences.length <= 1) return '<p class="mb-0">' + esc(raw) + '</p>';
+
+  // Group 2–3 sentences per paragraph
+  const paras = [];
+  for (let i = 0; i < sentences.length; i += 3) {
+    paras.push(sentences.slice(i, i + 3).join(' '));
+  }
+  return paras.map(p => '<p class="mb-2 last:mb-0">' + esc(p) + '</p>').join('');
+}
+
+function formatTranscriptPdf(text) {
+  if (!text) return '';
+  const raw = text.trim();
+  const sentenceRx = /([^.!?…¡¿
+]+[.!?…]+[\s"]*)(?=[A-ZÁÉÍÓÚÀÂÊÎÔÛÄËÏÖÜ¡¿
+]|$)/g;
+  const sentences = [];
+  let m, last = 0;
+  while ((m = sentenceRx.exec(raw)) !== null) { sentences.push(m[0].trim()); last = m.index + m[0].length; }
+  if (last < raw.length) sentences.push(raw.slice(last).trim());
+  if (sentences.length <= 1) return '<p>' + esc(raw) + '</p>';
+  const paras = [];
+  for (let i = 0; i < sentences.length; i += 3) paras.push(sentences.slice(i, i+3).join(' '));
+  return paras.map(p => '<p style="margin:0 0 10px 0;line-height:1.8">' + esc(p) + '</p>').join('');
+}
 
 // ─── Source helpers ───────────────────────────────────────────────────
 function getSource(r) {
@@ -275,10 +356,11 @@ function renderCard(row, idx) {
     </div>` : ''}
     <!-- Transcript -->
     <div class="px-4 pt-3 pb-4">
-      <p class="tx-body text-sm text-gray-300 leading-relaxed" id="tx-body-${idx}">${esc(text)}</p>
-      ${text.length > 180 ? `<button onclick="toggleExpand(${idx})" id="tx-toggle-${idx}" class="mt-2 text-xs text-[#34d399] hover:text-[#6ee7b7] transition-colors">▼ Show full transcript</button>` : ''}
+      <div class="tx-body text-sm text-gray-300 leading-relaxed" id="tx-body-${idx}">${formatTranscript(text)}</div>
+      ${text.length > 280 ? `<button onclick="toggleExpand(${idx})" id="tx-toggle-${idx}" class="mt-2 text-xs text-[#34d399] hover:text-[#6ee7b7] transition-colors">▼ Show all</button>` : ''}
+      ${settings.showTranslation && row.translation ? `<div class="mt-3 bg-indigo-950/30 border border-indigo-500/15 rounded-xl px-3 py-2.5"><p class="text-xs font-semibold text-indigo-300 mb-1">🌐 Translation</p><p class="text-xs text-indigo-200 leading-relaxed">${esc(row.translation)}</p></div>` : ''}
     </div>
-  </div>`;
+  </div>\`;
 }
 
 function toggleExpand(idx) {
@@ -396,84 +478,128 @@ async function loadQR() {
 function exportPDF() {
   const rows = filteredRows();
   if (!rows.length) { alert('No transcriptions to export'); return; }
+  settings.darkPdf ? exportPDFDark(rows) : exportPDFLight(rows);
+}
 
+function pdfBadge(row, dark) {
+  const s = row.source || '';
+  const styles = dark ? {
+    voice: 'background:#0d3321;color:#34d399;border:1px solid #166534;',
+    text:  'background:#0c1a40;color:#60a5fa;border:1px solid #1e3a8a;',
+    tg:    'background:#1a1040;color:#a78bfa;border:1px solid #4c1d95;',
+  } : {
+    voice: 'background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;',
+    text:  'background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;',
+    tg:    'background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd;',
+  };
+  const label = s === 'whatsapp_voice' ? '🎤 Voice' : s === 'whatsapp_text' ? '💬 Text' : '✈️ TG';
+  const st = s.includes('voice') ? styles.voice : s.includes('text') ? styles.text : styles.tg;
+  return `<span style="${st}border-radius:4px;padding:2px 7px;font-size:9px;font-weight:700;font-family:sans-serif">${label}</span>`;
+}
+
+function buildPdfHtml(rows, dark) {
+  const bg       = dark ? '#060d1a' : '#ffffff';
+  const cardBg   = dark ? '#0c1829' : '#ffffff';
+  const cardBdr  = dark ? '#1e2d45' : '#e5e7eb';
+  const headBg   = dark ? '#0a1422' : '#f9fafb';
+  const textMain = dark ? '#c9d1d9' : '#374151';
+  const textMeta = dark ? '#6b7280' : '#6b7280';
+  const textTs   = dark ? '#4b5563' : '#9ca3af';
+  const accent   = dark ? '#10b981' : '#10b981';
+  const bulletBg = dark ? '#0f1f10' : '#fffbeb';
+  const bulletBdr= dark ? '#14532d' : '#fde68a';
+  const bulletLbl= dark ? '#4ade80' : '#92400e';
+  const bulletTxt= dark ? '#86efac' : '#92400e';
+  const dotClr   = dark ? '#22c55e' : '#d97706';
+  const logoText = dark ? '#ffffff' : '#111827';
+  const logoSub  = dark ? '#6b7280' : '#6b7280';
+  const divider  = dark ? '#10b981' : '#10b981';
+  const footerC  = dark ? '#374151' : '#9ca3af';
   const filterLabel = (() => {
-    const src = sourceFilter === 'all' ? 'All sources' : sourceFilter === 'telegram' ? 'Telegram' : sourceFilter === 'whatsapp_business' ? 'WhatsApp Business' : 'WhatsApp QR';
+    const src = sourceFilter === 'all' ? 'All sources' : sourceFilter;
     const dt = dateFilter === 'today' ? 'Today' : dateFilter === 'week' ? 'This week' : 'All time';
     return src + ' · ' + dt;
   })();
 
-  const pdfHtml = `<!DOCTYPE html><html><head>
+  return \`<!DOCTYPE html><html><head>
 <meta charset="UTF-8"/>
-<title>Rewa Transcriptions — ${new Date().toLocaleDateString()}</title>
+<title>Rewa Export — \${new Date().toLocaleDateString()}</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Georgia',serif;background:#fff;color:#111;padding:32px;font-size:12px;max-width:800px;margin:0 auto}
-.header{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:2px solid #10b981;padding-bottom:14px;margin-bottom:22px}
+body{font-family:'Georgia',serif;background:\${bg};color:\${textMain};padding:32px;font-size:12px;max-width:820px;margin:0 auto}
+.header{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:2px solid \${divider};padding-bottom:14px;margin-bottom:22px}
 .logo{display:flex;align-items:center;gap:10px}
-.logo-icon{width:36px;height:36px;border-radius:9px;background:#10b981;display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:18px;flex-shrink:0;line-height:36px;text-align:center}
-.logo-text{font-size:20px;font-weight:900;letter-spacing:-0.5px}
-.logo-sub{font-size:10px;color:#6b7280;margin-top:1px}
-.meta{text-align:right;font-size:10px;color:#6b7280;line-height:1.8}
-.meta strong{color:#374151;display:block;font-size:11px}
-.card{border:1px solid #e5e7eb;border-radius:10px;margin-bottom:14px;overflow:hidden;break-inside:avoid}
-.card-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:#f9fafb;border-bottom:1px solid #e5e7eb;flex-wrap:wrap;gap:6px}
-.badge-tg{background:#e0f7fa;color:#0e7490;border:1px solid #67e8f9;border-radius:4px;padding:2px 7px;font-size:9px;font-weight:700;font-family:sans-serif}
-.badge-wa{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;border-radius:4px;padding:2px 7px;font-size:9px;font-weight:700;font-family:sans-serif}
-.badge-qr{background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd;border-radius:4px;padding:2px 7px;font-size:9px;font-weight:700;font-family:sans-serif}
-.card-id{font-size:10px;color:#6b7280;font-family:sans-serif}
-.card-ts{font-size:10px;color:#9ca3af;font-family:sans-serif}
-.bullets{padding:10px 14px;background:#fffbeb;border-bottom:1px solid #fde68a}
-.bullets-label{font-size:10px;font-weight:700;color:#92400e;margin-bottom:6px;font-family:sans-serif}
-.bullet{display:flex;gap:6px;align-items:flex-start;font-size:11px;color:#92400e;margin-bottom:3px;font-family:sans-serif;line-height:1.5}
-.bullet-dot{width:4px;height:4px;border-radius:50%;background:#d97706;flex-shrink:0;margin-top:4px}
-.tx-text{padding:11px 14px;font-size:12px;line-height:1.8;color:#374151;font-family:'Georgia',serif}
-.footer{margin-top:28px;border-top:1px solid #e5e7eb;padding-top:10px;display:flex;justify-content:space-between;font-size:9px;color:#9ca3af;font-family:sans-serif}
-@media print{body{padding:20px}@page{margin:15mm}}
+.logo-icon{width:36px;height:36px;border-radius:9px;background:#10b981;display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:18px;line-height:36px;text-align:center}
+.logo-name{font-size:20px;font-weight:900;letter-spacing:-0.5px;color:\${logoText}}
+.logo-sub{font-size:10px;color:\${logoSub};margin-top:1px}
+.meta{text-align:right;font-size:10px;color:\${textMeta};line-height:1.8}
+.meta strong{color:\${textMain};display:block;font-size:11px}
+.card{border:1px solid \${cardBdr};border-radius:10px;margin-bottom:14px;overflow:hidden;break-inside:avoid;background:\${cardBg}}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:\${headBg};border-bottom:1px solid \${cardBdr};flex-wrap:wrap;gap:6px}
+.card-id{font-size:10px;color:\${textMeta};font-family:sans-serif}
+.card-ts{font-size:10px;color:\${textTs};font-family:sans-serif;white-space:nowrap}
+.bullets{padding:10px 14px;background:\${bulletBg};border-bottom:1px solid \${bulletBdr}}
+.bullets-label{font-size:10px;font-weight:700;color:\${bulletLbl};margin-bottom:6px;font-family:sans-serif}
+.bullet{display:flex;gap:6px;align-items:flex-start;font-size:11px;color:\${bulletTxt};margin-bottom:3px;font-family:sans-serif;line-height:1.5}
+.bullet-dot{width:4px;height:4px;border-radius:50%;background:\${dotClr};flex-shrink:0;margin-top:4px}
+.tx-text{padding:12px 14px;font-size:12px;color:\${textMain};font-family:'Georgia',serif}
+.tx-text p{margin:0 0 10px 0;line-height:1.8}
+.tx-text p:last-child{margin:0}
+.translation{padding:10px 14px;border-top:1px solid \${cardBdr};font-size:11px;color:\${dark ? '#818cf8' : '#4338ca'};font-family:sans-serif;line-height:1.6}
+.footer{margin-top:28px;border-top:1px solid \${cardBdr};padding-top:10px;display:flex;justify-content:space-between;font-size:9px;color:\${footerC};font-family:sans-serif}
+@media print{body{padding:20px}@page{margin:12mm}\${dark ? 'body{-webkit-print-color-adjust:exact;print-color-adjust:exact}' : ''}}
 </style></head><body>
 <div class="header">
   <div class="logo">
     <div class="logo-icon">R</div>
-    <div><div class="logo-text">Rewa</div><div class="logo-sub">AI Transcription Report</div></div>
+    <div><div class="logo-name">Rewa</div><div class="logo-sub">AI Transcription Report</div></div>
   </div>
   <div class="meta">
     <strong>Transcription Export</strong>
-    Filter: ${esc(filterLabel)}<br/>
-    Records: ${rows.length}<br/>
-    Generated: ${new Date().toLocaleString()}
+    Filter: \${esc(filterLabel)}<br/>
+    Records: \${rows.length}<br/>
+    Generated: \${new Date().toLocaleString()}
   </div>
 </div>
-
-${rows.map(row => {
-  const src = getSource(row);
-  const badgeCls = src === 'telegram' ? 'badge-tg' : src === 'whatsapp_business' ? 'badge-wa' : 'badge-qr';
-  const badgeTxt = src === 'telegram' ? 'TG' : src === 'whatsapp_business' ? 'WA Biz' : 'QR';
+\${rows.map(row => {
   const bullets = parseBullets(row.summary);
   const dur = fmtDur(row.duration_seconds);
-  return `<div class="card">
+  const who = row.sender_name || 'Unknown';
+  const where = row.chat_name ? ' · ' + row.chat_name : '';
+  return \`<div class="card">
     <div class="card-head">
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span class="${badgeCls}">${badgeTxt}</span>
-        <span class="card-id">${esc(identifier(row))}${dur ? ' · 🎤 ' + dur : ''}</span>
+        \${pdfBadge(row, dark)}
+        <span class="card-id">\${esc(who)}\${esc(where)}\${dur ? ' · 🎤 ' + dur : ''}</span>
       </div>
-      <span class="card-ts">${fmtDate(row.created_at)}</span>
+      <span class="card-ts">\${fmtDate(row.created_at)}</span>
     </div>
-    ${bullets.length ? `<div class="bullets"><div class="bullets-label">⚡ Key points</div>${bullets.map(b=>`<div class="bullet"><div class="bullet-dot"></div><span>${esc(b)}</span></div>`).join('')}</div>` : ''}
-    <div class="tx-text">${esc((row.transcription||'').trim())}</div>
-  </div>`;
+    \${bullets.length ? \`<div class="bullets"><div class="bullets-label">⚡ Key points</div>\${bullets.map(b=>\`<div class="bullet"><div class="bullet-dot"></div><span>\${esc(b)}</span></div>\`).join('')}</div>\` : ''}
+    <div class="tx-text">\${formatTranscriptPdf(row.text)}</div>
+    \${settings.showTranslation && row.translation ? \`<div class="translation">🌐 \${esc(row.translation)}</div>\` : ''}
+  </div>\`;
 }).join('')}
-
 <div class="footer">
-  <span>Rewa — AI Memory for WhatsApp · rewa.app</span>
-  <span>Generated ${new Date().toLocaleDateString()} · ${rows.length} records</span>
+  <span>Rewa — AI Memory for WhatsApp</span>
+  <span>Generated \${new Date().toLocaleDateString()} · \${rows.length} records</span>
 </div>
-</body></html>`;
+</body></html>\`;
+}
 
-  const win = window.open('', '_blank', 'width=900,height=700');
-  win.document.write(pdfHtml);
+function exportPDFLight(rows) {
+  const win = window.open('', '_blank', 'width=920,height=700');
+  win.document.write(buildPdfHtml(rows, false));
   win.document.close();
   win.focus();
-  setTimeout(() => win.print(), 600);
+  setTimeout(() => win.print(), 700);
+}
+
+function exportPDFDark(rows) {
+  const win = window.open('', '_blank', 'width=920,height=700');
+  win.document.write(buildPdfHtml(rows, true));
+  win.document.close();
+  win.focus();
+  setTimeout(() => win.print(), 700);
 }
 
 // ─── Section navigation ───────────────────────────────────────────────
