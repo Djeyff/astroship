@@ -577,69 +577,85 @@ function buildPdfHtml(rows, dark) {
     return src + ' · ' + dt;
   })();
 
-  return `<!DOCTYPE html><html><head>
-<meta charset="UTF-8"/>
-<title>Rewa Export — \${new Date().toLocaleDateString()}</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Georgia',serif;background:\${bg};color:\${textMain};padding:32px;font-size:12px;max-width:820px;margin:0 auto}
-.header{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:2px solid \${divider};padding-bottom:14px;margin-bottom:22px}
-.logo{display:flex;align-items:center;gap:10px}
-.logo-icon{width:36px;height:36px;border-radius:9px;background:#10b981;display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:18px;line-height:36px;text-align:center}
-.logo-name{font-size:20px;font-weight:900;letter-spacing:-0.5px;color:\${logoText}}
-.logo-sub{font-size:10px;color:\${logoSub};margin-top:1px}
-.meta{text-align:right;font-size:10px;color:\${textMeta};line-height:1.8}
-.meta strong{color:\${textMain};display:block;font-size:11px}
-.card{border:1px solid \${cardBdr};border-radius:10px;margin-bottom:14px;overflow:hidden;break-inside:avoid;background:\${cardBg}}
-.card-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:\${headBg};border-bottom:1px solid \${cardBdr};flex-wrap:wrap;gap:6px}
-.card-id{font-size:10px;color:\${textMeta};font-family:sans-serif}
-.card-ts{font-size:10px;color:\${textTs};font-family:sans-serif;white-space:nowrap}
-.bullets{padding:10px 14px;background:\${bulletBg};border-bottom:1px solid \${bulletBdr}}
-.bullets-label{font-size:10px;font-weight:700;color:\${bulletLbl};margin-bottom:6px;font-family:sans-serif}
-.bullet{display:flex;gap:6px;align-items:flex-start;font-size:11px;color:\${bulletTxt};margin-bottom:3px;font-family:sans-serif;line-height:1.5}
-.bullet-dot{width:4px;height:4px;border-radius:50%;background:\${dotClr};flex-shrink:0;margin-top:4px}
-.tx-text{padding:12px 14px;font-size:12px;color:\${textMain};font-family:'Georgia',serif}
-.tx-text p{margin:0 0 10px 0;line-height:1.8}
-.tx-text p:last-child{margin:0}
-.translation{padding:10px 14px;border-top:1px solid \${cardBdr};font-size:11px;color:\${dark ? '#818cf8' : '#4338ca'};font-family:sans-serif;line-height:1.6}
-.footer{margin-top:28px;border-top:1px solid \${cardBdr};padding-top:10px;display:flex;justify-content:space-between;font-size:9px;color:\${footerC};font-family:sans-serif}
-@media print{body{padding:20px}@page{margin:12mm}\${dark ? 'body{-webkit-print-color-adjust:exact;print-color-adjust:exact}' : ''}}
-</style></head><body>
-<div class="header">
-  <div class="logo">
-    <div class="logo-icon">R</div>
-    <div><div class="logo-name">Rewa</div><div class="logo-sub">AI Transcription Report</div></div>
-  </div>
-  <div class="meta">
-    <strong>Transcription Export</strong>
-    Filter: \${esc(filterLabel)}<br/>
-    Records: \${rows.length}<br/>
-    Generated: \${new Date().toLocaleString()}
-  </div>
-</div>
-\${rows.map(row => {
-  const bullets = parseBullets(row.summary);
-  const dur = fmtDur(row.duration_seconds);
-  const who = row.sender_name || 'Unknown';
-  const where = row.chat_name ? ' · ' + row.chat_name : '';
-  return `<div class="card">
-    <div class="card-head">
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        \${pdfBadge(row, dark)}
-        <span class="card-id">\${esc(who)}\${esc(where)}\${dur ? ' · 🎤 ' + dur : ''}</span>
-      </div>
-      <span class="card-ts">\${fmtDate(row.created_at)}</span>
-    </div>
-    \${bullets.length ? `<div class="bullets"><div class="bullets-label">⚡ Key points</div>\${bullets.map(b=>`<div class="bullet"><div class="bullet-dot"></div><span>\${esc(b)}</span></div>`).join('')}</div>` : ''}
-    <div class="tx-text">\${formatTranscriptPdf(row.text)}</div>
-    \${settings.showTranslation && row.translation ? `<div class="translation">🌐 \${esc(row.translation)}</div>` : ''}
-  </div>`;
-}).join('')}
-<div class="footer">
-  <span>Rewa — AI Memory for WhatsApp</span>
-  <span>Generated \${new Date().toLocaleDateString()} · \${rows.length} records</span>
-</div>
-</body></html>`;
+  // Build cards HTML first (no nested template literals)
+  const cardsHtml = rows.map(function(row) {
+    const bullets = parseBullets(row.summary);
+    const dur = fmtDur(row.duration_seconds);
+    const who = row.sender_name || 'Unknown';
+    const where = row.chat_name ? ' · ' + row.chat_name : '';
+    const bulletItems = bullets.map(function(b) {
+      return '<div class="bullet"><div class="bullet-dot"></div><span>' + esc(b) + '</span></div>';
+    }).join('');
+    const bulletsHtml = bullets.length
+      ? '<div class="bullets"><div class="bullets-label">&#9889; Key points</div>' + bulletItems + '</div>'
+      : '';
+    const translationHtml = (settings.showTranslation && row.translation)
+      ? '<div class="translation">&#127760; ' + esc(row.translation) + '</div>'
+      : '';
+    return '<div class="card">' +
+      '<div class="card-head">' +
+        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+          pdfBadge(row, dark) +
+          '<span class="card-id">' + esc(who) + esc(where) + (dur ? ' &middot; &#127908; ' + dur : '') + '</span>' +
+        '</div>' +
+        '<span class="card-ts">' + fmtDate(row.created_at) + '</span>' +
+      '</div>' +
+      bulletsHtml +
+      '<div class="tx-text">' + formatTranscriptPdf(row.text) + '</div>' +
+      translationHtml +
+    '</div>';
+  }).join('');
+
+  const printCss = dark ? 'body{-webkit-print-color-adjust:exact;print-color-adjust:exact}' : '';
+  const mediaQuery = '@media print{body{padding:20px}@page{margin:12mm}' + printCss + '}';
+  const translationColor = dark ? '#818cf8' : '#4338ca';
+
+  return '<!DOCTYPE html><html><head>' +
+    '<meta charset="UTF-8"/>' +
+    '<title>Rewa Export &mdash; ' + new Date().toLocaleDateString() + '</title>' +
+    '<style>' +
+    '*{box-sizing:border-box;margin:0;padding:0}' +
+    'body{font-family:Georgia,serif;background:' + bg + ';color:' + textMain + ';padding:32px;font-size:12px;max-width:820px;margin:0 auto}' +
+    '.header{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:2px solid ' + divider + ';padding-bottom:14px;margin-bottom:22px}' +
+    '.logo{display:flex;align-items:center;gap:10px}' +
+    '.logo-icon{width:36px;height:36px;border-radius:9px;background:#10b981;display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:18px;line-height:36px;text-align:center}' +
+    '.logo-name{font-size:20px;font-weight:900;letter-spacing:-0.5px;color:' + logoText + '}' +
+    '.logo-sub{font-size:10px;color:' + logoSub + ';margin-top:1px}' +
+    '.meta{text-align:right;font-size:10px;color:' + textMeta + ';line-height:1.8}' +
+    '.meta strong{color:' + textMain + ';display:block;font-size:11px}' +
+    '.card{border:1px solid ' + cardBdr + ';border-radius:10px;margin-bottom:14px;overflow:hidden;break-inside:avoid;background:' + cardBg + '}' +
+    '.card-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:' + headBg + ';border-bottom:1px solid ' + cardBdr + ';flex-wrap:wrap;gap:6px}' +
+    '.card-id{font-size:10px;color:' + textMeta + ';font-family:sans-serif}' +
+    '.card-ts{font-size:10px;color:' + textTs + ';font-family:sans-serif;white-space:nowrap}' +
+    '.bullets{padding:10px 14px;background:' + bulletBg + ';border-bottom:1px solid ' + bulletBdr + '}' +
+    '.bullets-label{font-size:10px;font-weight:700;color:' + bulletLbl + ';margin-bottom:6px;font-family:sans-serif}' +
+    '.bullet{display:flex;gap:6px;align-items:flex-start;font-size:11px;color:' + bulletTxt + ';margin-bottom:3px;font-family:sans-serif;line-height:1.5}' +
+    '.bullet-dot{width:4px;height:4px;border-radius:50%;background:' + dotClr + ';flex-shrink:0;margin-top:4px}' +
+    '.tx-text{padding:12px 14px;font-size:12px;color:' + textMain + ';font-family:Georgia,serif}' +
+    '.tx-text p{margin:0 0 10px 0;line-height:1.8}' +
+    '.tx-text p:last-child{margin:0}' +
+    '.translation{padding:10px 14px;border-top:1px solid ' + cardBdr + ';font-size:11px;color:' + translationColor + ';font-family:sans-serif;line-height:1.6}' +
+    '.footer{margin-top:28px;border-top:1px solid ' + cardBdr + ';padding-top:10px;display:flex;justify-content:space-between;font-size:9px;color:' + footerC + ';font-family:sans-serif}' +
+    mediaQuery +
+    '</style></head><body>' +
+    '<div class="header">' +
+      '<div class="logo">' +
+        '<div class="logo-icon">R</div>' +
+        '<div><div class="logo-name">Rewa</div><div class="logo-sub">AI Transcription Report</div></div>' +
+      '</div>' +
+      '<div class="meta">' +
+        '<strong>Transcription Export</strong>' +
+        'Filter: ' + esc(filterLabel) + '<br/>' +
+        'Records: ' + rows.length + '<br/>' +
+        'Generated: ' + new Date().toLocaleString() +
+      '</div>' +
+    '</div>' +
+    cardsHtml +
+    '<div class="footer">' +
+      '<span>Rewa &mdash; AI Memory for WhatsApp</span>' +
+      '<span>Generated ' + new Date().toLocaleDateString() + ' &middot; ' + rows.length + ' records</span>' +
+    '</div>' +
+    '</body></html>';
 }
 
 function exportPDFLight(rows) {
