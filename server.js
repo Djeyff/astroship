@@ -195,130 +195,69 @@ http.createServer(async (req, res) => {
   if (pathname.startsWith('/api/')) {
     if (!getSession(req)) { sendJson(res, 401, { error: 'Unauthorized' }); return; }
 
-    // Transcriptions — reads from `transcriptions` table (encrypted) + decrypts server-side
+    // Transcriptions — reads from vozclara_transcriptions (plaintext) as primary source
     if (pathname === '/api/transcriptions') {
       const limit  = Math.min(parseInt(parsed.query.limit) || 50, 100);
       const offset = parseInt(parsed.query.offset) || 0;
       const search = parsed.query.q || '';
       const source = parsed.query.source || '';
 
-      let endpoint = `/rest/v1/transcriptions?select=id,source,sender_name,chat_name,duration_seconds,language,text_encrypted,summary_encrypted,encryption_iv,encryption_tag,audio_url,created_at&order=created_at.desc&limit=${limit}&offset=${offset}`;
-      let plaintextEndpoint = `/rest/v1/vozclara_transcriptions?select=id,transcription,summary,language,created_at,audio_duration_minutes,user_id,from_number,telegram_id,user_identifier&order=created_at.desc&limit=${limit}&offset=${offset}`;
-      
-      if (source && source !== 'all') {
-        endpoint += `&source=eq.${encodeURIComponent(source)}`;
-        // The `vozclara_transcriptions` table doesn't have a `source` column, so we'll filter by other means later if needed.
-        // plaintextEndpoint += `&source=eq.${encodeURIComponent(source)}`; // Not directly filterable by source
-      }
+      // vozclara_transcriptions has plaintext — use as sole source
+      let endpoint = `/rest/v1/vozclara_transcriptions?select=id,transcription,summary,language,created_at,audio_duration_minutes,duration_seconds,telegram_id,from_number,user_identifier&order=created_at.desc&limit=${limit}&offset=${offset}`;
 
       try {
-        const [rEnc, rPlain] = await Promise.all([
-          supaFetch(endpoint),
-          supaFetch(plaintextEndpoint),
-        ]);
-
-        const encryptedRows = (rEnc.data || []).map(decryptRow);
-        const plaintextRows = (rPlain.data || []).map(r => ({
-          id: r.id,
-          text: r.transcription || '[plaintext]',
-          summary: r.summary || null,
+        const r = await supaFetch(endpoint);
+        let rows = (r.data || []).map(row => ({
+          id: row.id,
+          text: row.transcription || '',
+          summary: row.summary || null,
           translation: null,
-          language: r.language || null,
-          source: r.telegram_id ? 'telegram' : (r.from_number || r.user_id) ? 'whatsapp' : 'unknown',
-          sender_name: r.user_identifier || r.from_number || r.telegram_id || 'unknown',
-          chat_name: null, // vozclara_transcriptions doesn't store chat_name directly
-          duration_seconds: r.audio_duration_minutes ? r.audio_duration_minutes * 60 : r.duration_seconds,
-          created_at: r.created_at,
+          language: row.language || null,
+          source: row.telegram_id ? 'telegram' : row.from_number ? 'whatsapp' : 'chrome',
+          sender_name: row.user_identifier || (row.from_number ? row.from_number : null) || (row.telegram_id ? String(row.telegram_id) : null) || 'Unknown',
+          chat_name: null,
+          duration_seconds: row.duration_seconds || (row.audio_duration_minutes ? Math.round(row.audio_duration_minutes * 60) : null),
+          created_at: row.created_at,
         }));
 
-        // Merge rows, prioritizing plaintext when available for the same ID
-        const mergedRowsMap = new Map();
-        plaintextRows.forEach(row => mergedRowsMap.set(row.id, row));
-        encryptedRows.forEach(row => {
-          if (!mergedRowsMap.has(row.id) || row.text !== '[key mismatch]') {
-            mergedRowsMap.set(row.id, row);
-          }
-        });
-
-        let rows = Array.from(mergedRowsMap.values());
-        rows.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
-        // Client-side text filter (merged and decrypted)
-        if (search) {
-          const q = search.toLowerCase();
-          rows = rows.filter(r => (r.text || '').toLowerCase().includes(q) || (r.summary || '').toLowerCase().includes(q) || (r.chat_name || '').toLowerCase().includes(q));
-        }
-
-        // Apply source filter AFTER merge, using the derived source
+        // Source filter
         if (source && source !== 'all') {
           rows = rows.filter(r => r.source === source);
         }
 
-        sendJson(res, 200, { rows, count: rEnc.count || rPlain.count });
+        // Text search
+        if (search) {
+          const q = search.toLowerCase();
+          rows = rows.filter(r => (r.text || '').toLowerCase().includes(q) || (r.summary || '').toLowerCase().includes(q));
+        }
+
+        sendJson(res, 200, { rows, count: r.count });
       } catch(e) { sendJson(res, 500, { error: e.message }); }
       return;
     }
 
-    // Stats
+    // Stats — query vozclara_transcriptions only (plaintext, no double-counting)
     if (pathname === '/api/stats') {
       try {
-        const [allEnc, todayEnc, allPlain, todayPlain] = await Promise.all([
-          supaFetch('/rest/v1/transcriptions?select=id,source,duration_seconds,text'),
-          supaFetch(`/rest/v1/transcriptions?select=id,text&created_at=gte.${new Date().toISOString().slice(0,10)}`),
-          supaFetch('/rest/v1/vozclara_transcriptions?select=id,audio_duration_minutes,telegram_id,from_number,user_id,transcription'),
-          supaFetch(`/rest/v1/vozclara_transcriptions?select=id,transcription&created_at=gte.${new Date().toISOString().slice(0,10)}`),
+        const today = new Date().toISOString().slice(0,10);
+        const [all, todayRows] = await Promise.all([
+          supaFetch('/rest/v1/vozclara_transcriptions?select=id,audio_duration_minutes,duration_seconds,telegram_id,from_number'),
+          supaFetch(`/rest/v1/vozclara_transcriptions?select=id&created_at=gte.${today}`),
         ]);
-
-        // Merge encrypted and plaintext for total count
-        const allEncRows = allEnc.data || [];
-        const allPlainRows = allPlain.data || [];
-        const allRowsCombined = new Set();
-        allEncRows.forEach(r => allRowsCombined.add(r.id));
-        allPlainRows.forEach(r => allRowsCombined.add(r.id));
-        const total = allRowsCombined.size;
-
-        // Today count
-        const todayEncRows = todayEnc.data || [];
-        const todayPlainRows = todayPlain.data || [];
-        const todayCombined = new Set();
-        todayEncRows.forEach(r => todayCombined.add(r.id));
-        todayPlainRows.forEach(r => todayCombined.add(r.id));
-        const today = todayCombined.size;
-
-        // Total minutes (prioritize plaintext when available)
-        let totalMinutes = 0;
-        const allRowsMap = new Map();
-        allEncRows.forEach(r => allRowsMap.set(r.id, r));
-        allPlainRows.forEach(r => allRowsMap.set(r.id, { ...r, source: r.telegram_id ? 'telegram' : (r.from_number || r.user_id) ? 'whatsapp' : 'unknown' }));
-
-        allRowsMap.forEach(row => {
-          const duration = row.audio_duration_minutes ? row.audio_duration_minutes : parseFloat(row.duration_seconds);
-          if (duration) totalMinutes += duration;
+        const rows = all.data || [];
+        const totalMinutes = rows.reduce((s, r) => {
+          const mins = r.audio_duration_minutes || (r.duration_seconds ? r.duration_seconds / 60 : 0);
+          return s + mins;
+        }, 0);
+        const sources = { telegram: 0, whatsapp: 0, chrome: 0 };
+        rows.forEach(r => {
+          if (r.telegram_id) sources.telegram++;
+          else if (r.from_number) sources.whatsapp++;
+          else sources.chrome++;
         });
-        totalMinutes = totalMinutes / 60; // Convert seconds to minutes for transcriptions
-
-        // Source counts
-        const sources = {
-          telegram: 0,
-          whatsapp: 0,
-          chrome: 0,
-          web: 0,
-          unknown: 0,
-        };
-
-        allEncRows.forEach(r => {
-          const sourceKey = r.source || 'unknown';
-          sources[sourceKey] = (sources[sourceKey] || 0) + 1;
-        });
-
-        allPlainRows.forEach(r => {
-          const sourceKey = r.telegram_id ? 'telegram' : (r.from_number || r.user_id) ? 'whatsapp' : 'unknown';
-          sources[sourceKey] = (sources[sourceKey] || 0) + 1;
-        });
-
         sendJson(res, 200, {
-          total: total,
-          today: today,
+          total: rows.length,
+          today: (todayRows.data || []).length,
           totalMinutes: Math.round(totalMinutes * 10) / 10,
           sources,
         });

@@ -293,9 +293,7 @@ function formatTranscript(text) {
   // Split into sentences respecting Spanish ¿ ¡ and ellipsis
   const raw = text.trim();
   // Add line break every ~3 sentences
-  const sentenceRx = /([^.!?…¡¿
-]+[.!?…]+[\s"]*)(?=[A-ZÁÉÍÓÚÀÂÊÎÔÛÄËÏÖÜ¡¿
-]|$)/g;
+  const sentenceRx = /([^.!?…¡¿\n]+[.!?…]+[\s"]*)(?=[A-ZÁÉÍÓÚÀÂÊÎÔÛÄËÏÖÜ¡¿\n]|$)/g;
   const sentences = [];
   let m;
   let last = 0;
@@ -317,9 +315,7 @@ function formatTranscript(text) {
 function formatTranscriptPdf(text) {
   if (!text) return '';
   const raw = text.trim();
-  const sentenceRx = /([^.!?…¡¿
-]+[.!?…]+[\s"]*)(?=[A-ZÁÉÍÓÚÀÂÊÎÔÛÄËÏÖÜ¡¿
-]|$)/g;
+  const sentenceRx = /([^.!?…¡¿\n]+[.!?…]+[\s"]*)(?=[A-ZÁÉÍÓÚÀÂÊÎÔÛÄËÏÖÜ¡¿\n]|$)/g;
   const sentences = [];
   let m, last = 0;
   while ((m = sentenceRx.exec(raw)) !== null) { sentences.push(m[0].trim()); last = m.index + m[0].length; }
@@ -581,7 +577,7 @@ function buildPdfHtml(rows, dark) {
     return src + ' · ' + dt;
   })();
 
-  return \`<!DOCTYPE html><html><head>
+  return `<!DOCTYPE html><html><head>
 <meta charset="UTF-8"/>
 <title>Rewa Export — \${new Date().toLocaleDateString()}</title>
 <style>
@@ -626,7 +622,7 @@ body{font-family:'Georgia',serif;background:\${bg};color:\${textMain};padding:32
   const dur = fmtDur(row.duration_seconds);
   const who = row.sender_name || 'Unknown';
   const where = row.chat_name ? ' · ' + row.chat_name : '';
-  return \`<div class="card">
+  return `<div class="card">
     <div class="card-head">
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         \${pdfBadge(row, dark)}
@@ -634,16 +630,16 @@ body{font-family:'Georgia',serif;background:\${bg};color:\${textMain};padding:32
       </div>
       <span class="card-ts">\${fmtDate(row.created_at)}</span>
     </div>
-    \${bullets.length ? \`<div class="bullets"><div class="bullets-label">⚡ Key points</div>\${bullets.map(b=>\`<div class="bullet"><div class="bullet-dot"></div><span>\${esc(b)}</span></div>\`).join('')}</div>\` : ''}
+    \${bullets.length ? `<div class="bullets"><div class="bullets-label">⚡ Key points</div>\${bullets.map(b=>`<div class="bullet"><div class="bullet-dot"></div><span>\${esc(b)}</span></div>`).join('')}</div>` : ''}
     <div class="tx-text">\${formatTranscriptPdf(row.text)}</div>
-    \${settings.showTranslation && row.translation ? \`<div class="translation">🌐 \${esc(row.translation)}</div>\` : ''}
-  </div>\`;
+    \${settings.showTranslation && row.translation ? `<div class="translation">🌐 \${esc(row.translation)}</div>` : ''}
+  </div>`;
 }).join('')}
 <div class="footer">
   <span>Rewa — AI Memory for WhatsApp</span>
   <span>Generated \${new Date().toLocaleDateString()} · \${rows.length} records</span>
 </div>
-</body></html>\`;
+</body></html>`;
 }
 
 function exportPDFLight(rows) {
