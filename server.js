@@ -295,15 +295,24 @@ http.createServer(async (req, res) => {
     return;
   }
 
-  // ── Route: /dashboard → public demo, /private → PIN-protected ───────
+  // ── Route: /dashboard → PIN-protected real dashboard, /private same ──
 
-  if (pathname === '/private' || pathname === '/private/') {
+  if (pathname === '/dashboard' || pathname === '/dashboard/' ||
+      pathname === '/private'   || pathname === '/private/') {
     if (!getSession(req)) { res.writeHead(302, { 'Location': '/login' }); res.end(); return; }
-    // Serve private dashboard
     fs.readFile(path.join(__dirname, 'public', 'private.html'), (err, data) => {
       if (err) { res.writeHead(404); res.end('Not found'); return; }
       res.writeHead(200, { 'Content-Type': 'text/html;charset=utf-8' });
       res.end(data);
+    });
+    return;
+  }
+
+  // Public demo at /demo
+  if (pathname === '/demo' || pathname === '/demo/') {
+    fs.readFile(path.join(__dirname, 'public', 'demo.html'), (err, data) => {
+      res.writeHead(200, { 'Content-Type': 'text/html;charset=utf-8' });
+      res.end(err ? '<h1>Demo coming soon</h1>' : data);
     });
     return;
   }
