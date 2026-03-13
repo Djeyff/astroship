@@ -413,18 +413,23 @@ function fmtDur(s) {
   return m > 0 ? `${m}m ${r}s` : `${r}s`;
 }
 
-// Parse summary into bullet points
-function parseBullets(text) {
+// Parse text into adaptive bullet points (1–3 based on content length)
+function parseBullets(text, max = 3) {
   if (!text) return [];
-  // Split on "* ", "• ", "- " patterns at start of line or after punctuation
-  const lines = text.split(/(?:^|\n)\s*[\*•\-]\s+/m).map(l => l.trim()).filter(l => l.length > 2);
-  if (lines.length <= 1) {
-    // Try splitting on ". * " pattern
-    const alt = text.split(/\.\s*\*\s+/).map(l => l.replace(/^\*\s*/,'').trim()).filter(l => l.length > 2);
-    if (alt.length > 1) return alt;
-    return [text.replace(/^\*\s*/,'').trim()];
+  const raw = text.trim().replace(/\s+/g, ' ');
+  // Already has bullet markers
+  const hasBullets = /(?:^|\n)\s*[•\-\*]\s/m.test(raw);
+  let items;
+  if (hasBullets) {
+    items = raw.split(/(?:^|\n)\s*[•\-\*]\s+/m).map(l => l.trim()).filter(l => l.length > 3);
+  } else {
+    // Split on sentence boundaries
+    items = (raw.match(/[^.!?]+[.!?]+/g) || [raw]).map(s => s.trim()).filter(s => s.length > 3);
   }
-  return lines;
+  // Adaptive count based on total length
+  const len = raw.length;
+  const count = len < 60 ? 1 : len < 180 ? Math.min(2, items.length) : Math.min(max, items.length);
+  return items.slice(0, count);
 }
 
 // ─── Render a single card ─────────────────────────────────────────────
