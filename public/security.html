@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rewa — Security</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#050c18;--bg2:#0d1a2e;--accent:#34d399;--accent2:#6ee7b7;--text:#e2e8f0;--text2:#94a3b8;--border:#1e293b;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.8;}
+  .container{max-width:800px;margin:0 auto;padding:4rem 2rem;}
+  h1{font-size:2.5rem;font-weight:700;margin-bottom:.5rem;background:linear-gradient(135deg,#fff,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .subtitle{color:var(--text2);margin-bottom:3rem;font-size:1rem;}
+  h2{font-size:1.4rem;font-weight:600;margin:2.5rem 0 1rem;color:var(--accent2);}
+  p,li{color:var(--text2);margin-bottom:1rem;}
+  ul{padding-left:1.5rem;}
+  li{margin-bottom:.5rem;}
+  a{color:var(--accent2);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  .back{display:inline-block;margin-bottom:2rem;color:var(--accent);font-size:.9rem;}
+  strong{color:var(--text);}
+  .pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin:2rem 0;}
+  .pillar{background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.15);border-radius:12px;padding:1.5rem;}
+  .pillar-icon{font-size:1.8rem;margin-bottom:.75rem;}
+  .pillar h3{font-size:1rem;font-weight:600;color:var(--text);margin-bottom:.5rem;}
+  .pillar p{font-size:.85rem;margin:0;}
+  .disclosure-box{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:2rem 0;}
+  footer{text-align:center;padding:2rem;border-top:1px solid var(--border);margin-top:4rem;}
+  footer a{color:var(--text2);margin:0 1rem;font-size:.85rem;}
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="/" class="back">← Back to Rewa</a>
+  <h1>Security</h1>
+  <p class="subtitle">How we protect your team's communication data.</p>
+
+  <div class="pillars">
+    <div class="pillar">
+      <div class="pillar-icon">🔐</div>
+      <h3>Encrypted in Transit</h3>
+      <p>All data is transmitted over TLS 1.3. No plaintext communication, ever.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">🗄️</div>
+      <h3>Encrypted at Rest</h3>
+      <p>Your stored transcriptions and messages are encrypted at rest using AES-256.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">🏢</div>
+      <h3>Isolated Workspaces</h3>
+      <p>Each organization's data is logically isolated. No cross-tenant data access is possible.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">🎙️</div>
+      <h3>No Audio Retained</h3>
+      <p>Voice recordings are transcribed and immediately deleted. We never store raw audio.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">🔑</div>
+      <h3>Access Controls</h3>
+      <p>Strict role-based access. Our team cannot read your data without explicit authorization.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">📋</div>
+      <h3>Audit Logs</h3>
+      <p>All access to your workspace is logged. Business tier customers can request access logs.</p>
+    </div>
+  </div>
+
+  <h2>Infrastructure</h2>
+  <p>Rewa runs on enterprise-grade cloud infrastructure hosted in the European Union and USA. Our servers are protected by:</p>
+  <ul>
+    <li>DDoS protection and rate limiting at the network edge</li>
+    <li>Automated vulnerability scanning and dependency monitoring</li>
+    <li>Regular security patches and updates</li>
+    <li>Database backups with point-in-time recovery, encrypted and stored off-site</li>
+    <li>Isolated network environments — application, database, and cache tiers are separated</li>
+  </ul>
+
+  <h2>Authentication</h2>
+  <ul>
+    <li>Dashboard access requires phone-based OTP verification — no passwords to steal</li>
+    <li>Session tokens are cryptographically random and expire after 30 days</li>
+    <li>API access uses short-lived tokens scoped to specific operations</li>
+    <li>No third-party OAuth means no risk from compromised social login providers</li>
+  </ul>
+
+  <h2>AI Processing</h2>
+  <p>When processing voice notes and generating AI responses, your data is sent to our AI infrastructure over encrypted connections. We specifically choose providers whose terms prohibit using customer data for model training. Your team's conversations are not used to train any AI model.</p>
+
+  <h2>Employee Access</h2>
+  <p>Rewa employees do not have routine access to customer data. Access requires multi-factor authentication, is granted on a need-to-know basis, and every access event is logged. We will never sell, rent, or share your data with third parties for marketing purposes.</p>
+
+  <h2>Responsible Disclosure</h2>
+  <div class="disclosure-box">
+    <p>If you discover a security vulnerability, please report it responsibly. We take all reports seriously and aim to resolve critical issues within 48 hours.</p>
+    <p>📧 <a href="mailto:security@rewa.app">security@rewa.app</a> — Please include a description, steps to reproduce, and potential impact. We will acknowledge your report within 24 hours.</p>
+    <p style="font-size:.85rem;">We ask that you do not publicly disclose the issue until we have had the opportunity to investigate and remediate.</p>
+  </div>
+
+  <h2>Questions</h2>
+  <p>Have security questions or concerns? <a href="/contact">Contact us</a> or email <a href="mailto:security@rewa.app">security@rewa.app</a>.</p>
+</div>
+<footer>
+  <a href="/privacy">Privacy</a>
+  <a href="/terms">Terms</a>
+  <a href="/security">Security</a>
+  <a href="/contact">Contact</a>
+  <p style="margin-top:1rem;color:var(--text2);font-size:.8rem;">© 2026 Rewa. All rights reserved.</p>
+</footer>
+</body>
+</html>
