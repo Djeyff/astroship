@@ -329,52 +329,128 @@ details summary::-webkit-details-marker{display:none}
   <div class="max-w-2xl mx-auto">
     <div class="flex justify-center mb-4"><span class="tag text-xs font-semibold px-3 py-1.5 rounded-full">FAQ</span></div>
     <h2 class="text-center font-black mb-12" style="font-size:clamp(1.8rem,4vw,3rem)">Common questions</h2>
-    <div class="flex flex-col gap-3">
-      <details class="glass rounded-2xl p-5 group cursor-pointer">
-        <summary class="font-semibold flex items-center justify-between gap-4">
-          Does my team need to install anything?
-          <span class="text-[#f5b86e] flex-shrink-0 text-xl transition-transform group-open:rotate-45">+</span>
-        </summary>
-        <p class="text-gray-400 text-sm leading-relaxed mt-3">No. You add Retena's number to your WhatsApp group or scan a QR code once. No app, no extension, no IT ticket needed.</p>
-      </details>
-      <details class="glass rounded-2xl p-5 group cursor-pointer">
-        <summary class="font-semibold flex items-center justify-between gap-4">
-          Can Retena read my messages?
-          <span class="text-[#f5b86e] flex-shrink-0 text-xl transition-transform group-open:rotate-45">+</span>
-        </summary>
-        <p class="text-gray-400 text-sm leading-relaxed mt-3">No. All data is encrypted with AES-256-GCM using your unique key before reaching our database. We physically cannot read your content.</p>
-      </details>
-      <details class="glass rounded-2xl p-5 group cursor-pointer">
-        <summary class="font-semibold flex items-center justify-between gap-4">
-          Does it work with voice notes in groups?
-          <span class="text-[#f5b86e] flex-shrink-0 text-xl transition-transform group-open:rotate-45">+</span>
-        </summary>
-        <p class="text-gray-400 text-sm leading-relaxed mt-3">Yes — that's Retena's core feature. Every voice note in every connected group is automatically transcribed and searchable. No manual action needed from anyone.</p>
-      </details>
-      <details class="glass rounded-2xl p-5 group cursor-pointer">
-        <summary class="font-semibold flex items-center justify-between gap-4">
-          What languages are supported?
-          <span class="text-[#f5b86e] flex-shrink-0 text-xl transition-transform group-open:rotate-45">+</span>
-        </summary>
-        <p class="text-gray-400 text-sm leading-relaxed mt-3">50+ languages including Spanish, English, French, Portuguese, Arabic and more. Mixed-language voice notes handled automatically.</p>
-      </details>
-      <details class="glass rounded-2xl p-5 group cursor-pointer">
-        <summary class="font-semibold flex items-center justify-between gap-4">
-          What happens when I go over my limits?
-          <span class="text-[#f5b86e] flex-shrink-0 text-xl transition-transform group-open:rotate-45">+</span>
-        </summary>
-        <p class="text-gray-400 text-sm leading-relaxed mt-3">You get notified at 80% usage. Overages are auto-billed at transparent per-unit rates. No hard shutoffs — your team keeps working.</p>
-      </details>
-      <details class="glass rounded-2xl p-5 group cursor-pointer">
-        <summary class="font-semibold flex items-center justify-between gap-4">
-          Is this compliant with WhatsApp's terms?
-          <span class="text-[#f5b86e] flex-shrink-0 text-xl transition-transform group-open:rotate-45">+</span>
-        </summary>
-        <p class="text-gray-400 text-sm leading-relaxed mt-3">Yes. Retena uses the official WhatsApp Business API via Meta Cloud API and Twilio. All group members are notified that Retena is present.</p>
-      </details>
+    <div class="flex flex-col gap-3" id="faq-list">
+
+      <div class="faq-item glass rounded-2xl p-5 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-4">
+          <span class="font-semibold">How does Retena connect to my WhatsApp groups?</span>
+          <span class="faq-icon text-[#f5b86e] flex-shrink-0 text-xl font-light select-none">+</span>
+        </div>
+        <div class="faq-answer hidden">
+          <p class="text-gray-400 text-sm leading-relaxed mt-3">Add Retena's number to any WhatsApp group, or scan a QR code. No app install, no IT department. Done in seconds.</p>
+        </div>
+      </div>
+
+      <div class="faq-item glass rounded-2xl p-5 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-4">
+          <span class="font-semibold">Does my team need to install anything?</span>
+          <span class="faq-icon text-[#f5b86e] flex-shrink-0 text-xl font-light select-none">+</span>
+        </div>
+        <div class="faq-answer hidden">
+          <p class="text-gray-400 text-sm leading-relaxed mt-3">No. Just add one number to your group. No app, no extension, no IT ticket.</p>
+        </div>
+      </div>
+
+      <div class="faq-item glass rounded-2xl p-5 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-4">
+          <span class="font-semibold">What happens to the audio files?</span>
+          <span class="faq-icon text-[#f5b86e] flex-shrink-0 text-xl font-light select-none">+</span>
+        </div>
+        <div class="faq-answer hidden">
+          <p class="text-gray-400 text-sm leading-relaxed mt-3">Voice notes are transcribed and the audio is deleted. Only the text transcript is stored, encrypted with AES-256-GCM.</p>
+        </div>
+      </div>
+
+      <div class="faq-item glass rounded-2xl p-5 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-4">
+          <span class="font-semibold">What languages does Retena support?</span>
+          <span class="faq-icon text-[#f5b86e] flex-shrink-0 text-xl font-light select-none">+</span>
+        </div>
+        <div class="faq-answer hidden">
+          <p class="text-gray-400 text-sm leading-relaxed mt-3">50+ languages including Spanish, English, French, Portuguese, Arabic. Mixed-language voice notes handled automatically.</p>
+        </div>
+      </div>
+
+      <div class="faq-item glass rounded-2xl p-5 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-4">
+          <span class="font-semibold">Is Retena legal to use?</span>
+          <span class="faq-icon text-[#f5b86e] flex-shrink-0 text-xl font-light select-none">+</span>
+        </div>
+        <div class="faq-answer hidden">
+          <p class="text-gray-400 text-sm leading-relaxed mt-3">Yes. Retena uses the official WhatsApp Business API via Meta Cloud API and Twilio. All group members are notified that Retena is present.</p>
+        </div>
+      </div>
+
+      <div class="faq-item glass rounded-2xl p-5 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-4">
+          <span class="font-semibold">Can I try Retena before paying?</span>
+          <span class="faq-icon text-[#f5b86e] flex-shrink-0 text-xl font-light select-none">+</span>
+        </div>
+        <div class="faq-answer hidden">
+          <p class="text-gray-400 text-sm leading-relaxed mt-3">Yes. Join the waitlist for a free trial with early bird pricing locked forever.</p>
+        </div>
+      </div>
+
+      <div class="faq-item glass rounded-2xl p-5 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-4">
+          <span class="font-semibold">Why per team, not per seat?</span>
+          <span class="faq-icon text-[#f5b86e] flex-shrink-0 text-xl font-light select-none">+</span>
+        </div>
+        <div class="faq-answer hidden">
+          <p class="text-gray-400 text-sm leading-relaxed mt-3">Your whole team uses Retena for one price. No per-user fees. A 10-person team on Pro pays $79 total, not $79 each.</p>
+        </div>
+      </div>
+
+      <div class="faq-item glass rounded-2xl p-5 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-4">
+          <span class="font-semibold">What's the difference between Retena and VozClara?</span>
+          <span class="faq-icon text-[#f5b86e] flex-shrink-0 text-xl font-light select-none">+</span>
+        </div>
+        <div class="faq-answer hidden">
+          <p class="text-gray-400 text-sm leading-relaxed mt-3">VozClara is for personal voice note transcription (1-on-1). Retena captures and searches entire WhatsApp group histories for teams. VozClara for you, Retena for your team.</p>
+        </div>
+      </div>
+
+      <div class="faq-item glass rounded-2xl p-5 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-4">
+          <span class="font-semibold">What is VozClara?</span>
+          <span class="faq-icon text-[#f5b86e] flex-shrink-0 text-xl font-light select-none">+</span>
+        </div>
+        <div class="faq-answer hidden">
+          <p class="text-gray-400 text-sm leading-relaxed mt-3">VozClara is our personal AI voice transcription tool. Works in WhatsApp and Telegram, 99 languages, free to start. All Retena members get free VozClara Basic. <a href="https://voz-clara.com" class="text-[#f5b86e] hover:underline" onclick="event.stopPropagation()">voz-clara.com</a></p>
+        </div>
+      </div>
+
+      <div class="faq-item glass rounded-2xl p-5 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-4">
+          <span class="font-semibold">Can Retena read my messages?</span>
+          <span class="faq-icon text-[#f5b86e] flex-shrink-0 text-xl font-light select-none">+</span>
+        </div>
+        <div class="faq-answer hidden">
+          <p class="text-gray-400 text-sm leading-relaxed mt-3">No. All data is encrypted with AES-256-GCM using your unique key before reaching our database. We physically cannot read your content.</p>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
+<script>
+function toggleFaq(el) {
+  const answer = el.querySelector('.faq-answer');
+  const icon = el.querySelector('.faq-icon');
+  const isOpen = !answer.classList.contains('hidden');
+  // Close all other open items
+  document.querySelectorAll('.faq-item').forEach(function(item) {
+    item.querySelector('.faq-answer').classList.add('hidden');
+    item.querySelector('.faq-icon').textContent = '+';
+  });
+  // Toggle clicked item
+  if (!isOpen) {
+    answer.classList.remove('hidden');
+    icon.textContent = '−';
+  }
+}
+</script>
 
 <!-- WAITLIST -->
 <section id="waitlist" class="bg-[#050e1a] py-24 px-4">
