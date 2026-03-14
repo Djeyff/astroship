@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1520"/>
+      <stop offset="100%" style="stop-color:#1a2332"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#E67E22"/>
+      <stop offset="100%" style="stop-color:#d97706"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- Top accent bar -->
+  <rect x="0" y="0" width="1200" height="4" fill="#E67E22"/>
+  <!-- Left navy glow -->
+  <ellipse cx="100" cy="315" rx="250" ry="250" fill="#1E3A5F" opacity="0.3"/>
+  <!-- Right orange glow -->
+  <ellipse cx="1100" cy="180" rx="280" ry="280" fill="#E67E22" opacity="0.07"/>
+
+  <!-- Logo mark — brain/retention -->
+  <circle cx="120" cy="100" r="36" fill="#E67E22" opacity="0.9"/>
+  <text x="120" y="117" text-anchor="middle" font-size="30">🧠</text>
+
+  <!-- Brand name -->
+  <text x="172" y="115" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="44" fill="white">Retena</text>
+
+  <!-- Divider -->
+  <line x1="80" y1="165" x2="1120" y2="165" stroke="#E67E22" stroke-width="1" opacity="0.3"/>
+
+  <!-- Main headline -->
+  <text x="80" y="280" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="72" fill="white">Your team never forgets.</text>
+
+  <!-- Subheadline -->
+  <text x="80" y="370" font-family="Inter, Arial, sans-serif" font-weight="500" font-size="38" fill="#E67E22">AI memory for your WhatsApp groups</text>
+
+  <!-- Description -->
+  <text x="80" y="440" font-family="Inter, Arial, sans-serif" font-weight="400" font-size="26" fill="#94a3b8">Every voice note captured, transcribed,</text>
+  <text x="80" y="478" font-family="Inter, Arial, sans-serif" font-weight="400" font-size="26" fill="#94a3b8">summarized, and searchable with AI.</text>
+
+  <!-- Stats pills -->
+  <rect x="80" y="518" width="200" height="48" rx="24" fill="#E67E22" opacity="0.15"/>
+  <text x="180" y="549" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="700" font-size="18" fill="#fb923c">No new apps needed</text>
+
+  <rect x="298" y="518" width="170" height="48" rx="24" fill="#1E3A5F" opacity="0.5"/>
+  <text x="383" y="549" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="700" font-size="18" fill="#60a5fa">Team pricing</text>
+
+  <rect x="486" y="518" width="160" height="48" rx="24" fill="#27AE60" opacity="0.15"/>
+  <text x="566" y="549" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="700" font-size="18" fill="#4ade80">7-day free trial</text>
+
+  <!-- Domain -->
+  <text x="1120" y="590" text-anchor="end" font-family="Inter, Arial, sans-serif" font-weight="600" font-size="22" fill="#94a3b8">retena.app</text>
+
+  <!-- Bottom accent -->
+  <rect x="0" y="626" width="1200" height="4" fill="#2A5C8F" opacity="0.5"/>
+</svg>

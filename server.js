@@ -20,7 +20,7 @@ const sessions = new Map();
 function genToken() { return crypto.randomBytes(32).toString('hex'); }
 function getSession(req) {
   const c = req.headers.cookie || '';
-  const m = c.match(/rewa_session=([a-f0-9]+)/);
+  const m = c.match(/retena_session=([a-f0-9]+)/);
   if (!m) return null;
   const s = sessions.get(m[1]);
   if (!s || s.expires < Date.now()) return null;
@@ -175,7 +175,7 @@ http.createServer(async (req, res) => {
       sessions.set(token, { expires: Date.now() + 24 * 3600 * 1000 });
       res.writeHead(200, {
         'Content-Type': 'application/json',
-        'Set-Cookie': `rewa_session=${token}; HttpOnly; Path=/; Max-Age=86400; SameSite=Lax`,
+        'Set-Cookie': `retena_session=${token}; HttpOnly; Path=/; Max-Age=86400; SameSite=Lax`,
       });
       res.end(JSON.stringify({ ok: true }));
     } else {
@@ -185,7 +185,7 @@ http.createServer(async (req, res) => {
   }
 
   if (pathname === '/logout') {
-    res.writeHead(302, { 'Set-Cookie': 'rewa_session=; Max-Age=0; Path=/', 'Location': '/login' });
+    res.writeHead(302, { 'Set-Cookie': 'retena_session=; Max-Age=0; Path=/', 'Location': '/login' });
     res.end();
     return;
   }

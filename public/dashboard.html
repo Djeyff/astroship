@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg">
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Retena — Dashboard</title>
@@ -45,6 +47,15 @@ body{overflow-x:hidden}
   .pdf-bullet-dot{width:4px;height:4px;border-radius:50%;background:#d97706;flex-shrink:0;margin-top:5px}
 }
 </style>
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Dashboard — Retena">
+  <meta property="og:description" content="Your Retena workspace. Groups, transcripts, AI search, summaries.">
+  <meta property="og:image" content="https://retena.app/og.svg">
+  <meta property="og:url" content="https://retena.app/dashboard">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Dashboard — Retena">
+  <meta name="twitter:description" content="Your Retena workspace. Groups, transcripts, AI search, summaries.">
+  <meta name="twitter:image" content="https://retena.app/og.svg">
 </head>
 <body class="bg-[#050c18] text-white antialiased">
 <div class="flex h-screen overflow-hidden">
@@ -404,6 +415,8 @@ function exportPDF() {
   })();
 
   const pdfHtml = `<!DOCTYPE html><html><head>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg">
 <meta charset="UTF-8"/>
 <title>Retena Transcriptions — ${new Date().toLocaleDateString()}</title>
 <style>
@@ -430,7 +443,16 @@ body{font-family:'Georgia',serif;background:#fff;color:#111;padding:32px;font-si
 .tx-text{padding:11px 14px;font-size:12px;line-height:1.8;color:#374151;font-family:'Georgia',serif}
 .footer{margin-top:28px;border-top:1px solid #e5e7eb;padding-top:10px;display:flex;justify-content:space-between;font-size:9px;color:#9ca3af;font-family:sans-serif}
 @media print{body{padding:20px}@page{margin:15mm}}
-</style></head><body>
+</style>  <meta property="og:type" content="website">
+  <meta property="og:title" content="Dashboard — Retena">
+  <meta property="og:description" content="Your Retena workspace. Groups, transcripts, AI search, summaries.">
+  <meta property="og:image" content="https://retena.app/og.svg">
+  <meta property="og:url" content="https://retena.app/dashboard">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Dashboard — Retena">
+  <meta name="twitter:description" content="Your Retena workspace. Groups, transcripts, AI search, summaries.">
+  <meta name="twitter:image" content="https://retena.app/og.svg">
+</head><body>
 <div class="header">
   <div class="logo">
     <div class="logo-icon">R</div>
